@@ -15,6 +15,15 @@ TFT_eSprite main_background_sprite = TFT_eSprite(&display_manager::tft);
 TFT_eSprite left_arrow_sprite = TFT_eSprite(&display_manager::tft);
 TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
 
+
+  display_manager::screen_function display_manager::array_of_screens[5]{
+    draw_temperature_screen,
+    draw_logging_screen,
+    draw_temperature_screen,
+    draw_logging_screen,
+    draw_temperature_screen
+  };
+
   void display_manager::draw_temperature_screen(){
       char buffer[100];
       static float temp = display_manager::bme_ref.readTemperature();
@@ -84,10 +93,33 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
       main_background_sprite.pushSprite(0, 0);
   }
 
-  void draw_logging_screen(){
+  void display_manager::draw_logging_screen(){
+    auto& tmp = Logging::time_info;
+    char buffer[100];
 
+    sprintf(buffer, 
+          "%02i.%02i.%02i        %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
+          tmp.tm_hour, tmp.tm_min
+        );
+
+      main_background_sprite.fillSprite(TFT_BLACK);
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
+      right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
+      left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
+      right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
+
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+      main_background_sprite.setTextSize(2);
+      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
+      main_background_sprite.drawString("SCREEN 2", 30, 50, 2);
+
+      main_background_sprite.pushSprite(0, 0);
   }
 
+
+  
   void display_manager::main(){ 
     static uint8_t refresh_state = 0;
     static unsigned long refresh_timer = 0;
@@ -109,11 +141,12 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
     }
 
     touch_flags = 0;
+
+    array_of_screens[current_screen]();
     
     // draw_temperature_screen(tft);
     switch(refresh_state){
       case 0:
-        draw_temperature_screen();
         refresh_state = 1;
         refresh_timer = millis();
       break;

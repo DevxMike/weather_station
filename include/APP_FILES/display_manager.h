@@ -33,6 +33,8 @@ public:
   static void append_and_print_start_window(const char* message, bool status = true, bool add_status = false);
 
 private:
+  typedef void (*screen_function)(void);
+  static screen_function array_of_screens[5];
   static void touch_debouncer();
   static void touch_manager();
   static void draw_temperature_screen();
