@@ -4,6 +4,7 @@
 #include "GRAPHICS/arrow_right.h"
 #include "GRAPHICS/background.h"
 #include "GRAPHICS/background_graph.h"
+#include "GRAPHICS/sky_bg.h"
 
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
@@ -61,12 +62,13 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
+      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
-      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_TRANSPARENT);
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
@@ -96,7 +98,7 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
   void display_manager::draw_logging_screen(){
     auto& tmp = Logging::time_info;
     char buffer[100];
-
+    
     sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
@@ -104,6 +106,8 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
+      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
@@ -129,6 +133,8 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
+      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
@@ -154,6 +160,8 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
+      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
@@ -179,6 +187,8 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
+      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
