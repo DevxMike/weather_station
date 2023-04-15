@@ -276,6 +276,8 @@ void setup(){
   }
   else{
     display_manager::append_and_print_start_window("Config error", false, true);
+
+    time_manager::set_local_time(2023, 4, 23, 16, 16, 0, 1);
   }
 
   delay(3000);
