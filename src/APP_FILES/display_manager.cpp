@@ -36,46 +36,6 @@ const char config_strings[3][30]{
     draw_time_config_screen
   };
 
-  /*void drawScaleSmallGauge (){
- 
-   j = 270;                                                                                 // start point of cirle segment
-   do {
-       angleCircle = (j* DEG2RAD);                                                          // angle expressed in radians - 1 degree = 0,01745331 radians      
-
-       edge_x1 = (center_x1+4 + (radius_s*cos (angleCircle)));                              // scale - note the 4 pixels offset in x      
-       edge_y1 = (center_y1 + (radius_s*sin (angleCircle)));                                // scale
-         
-       edge_x1_out = (center_x1+4 + ((radius_s+edgemarkerLength)*cos (angleCircle)));       // scale - note the 4 pixels offset in x   
-       edge_y1_out = (center_y1 + ((radius_s+edgemarkerLength)*sin (angleCircle)));         // scale
-        
-       tft.drawLine (edge_x1, edge_y1, edge_x1_out, edge_y1_out,MAGENTA); 
- 
-       j = j+6; 
-   } 
-   while (j<356);                                                                           // end of circle segment
-}
-
-
-// ######################################################################################
-// #  small needle meter       - dynamic needle part                                    #
-// ######################################################################################
-
-void needleMeter (){                                                                         
-
-   tft.drawLine (pivotNeedle_x, pivotNeedle_y, needle_x_old, needle_y_old, 0);              // remove old needle by overwritig in white
-   
-   angleNeedle = (420*DEG2RAD - 1.5*hum_02*DEG2RAD);                                        // contains a 1.5 stretch factor to expand 60 percentage points over 90 degrees of scale
-
-   if (angleNeedle > 6.28) angleNeedle = 6.28;                                              // prevents the needle from ducking below horizontal    
-   needle_x = (pivotNeedle_x + ((needleLength)*cos (angleNeedle)));                         // calculate x coordinate needle point
-   needle_y = (pivotNeedle_y + ((needleLength)*sin (angleNeedle)));                         // calculate y coordinate needle point
-   needle_x_old = needle_x;                                                                 // remember previous needle position
-   needle_y_old = needle_y;
-
-   tft.drawLine (pivotNeedle_x, pivotNeedle_y, needle_x, needle_y,MAGENTA); 
-   tft.fillCircle (pivotNeedle_x, pivotNeedle_y, 2, MAGENTA);                               // restore needle pivot
-}*/
-
   void display_manager::draw_temperature_screen(){
       char buffer[100];
       static float temp = display_manager::bme_ref.readTemperature();
@@ -166,7 +126,7 @@ void needleMeter (){
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      main_background_sprite.drawString("LOG CONFIG", 100, 35, 2);
+      main_background_sprite.drawString("LOG CONFIG", 80, 35, 2);
 
       for(uint8_t i = 0; i < 3; ++i){
         if(Logging::logging_interval == i){
@@ -233,7 +193,20 @@ void needleMeter (){
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      main_background_sprite.drawString("CHART CONFIG", 30, 50, 2);
+      main_background_sprite.drawString("CHART UPDATE", 70, 35, 2);
+
+      for(uint8_t i = 0; i < 3; ++i){
+        if(system_configuration.graph_config == i){
+          main_background_sprite.pushImage(20, 70 + i * 40, 50, 38, active);  
+          main_background_sprite.setTextColor(TFT_BLACK, TFT_GREEN);
+        }
+        else{
+          main_background_sprite.pushImage(20, 70 + i * 40, 50, 38, not_active);
+          main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+        }
+
+        main_background_sprite.drawString(config_strings[i], 75, 72 + i * 40, 2);
+      }
 
       main_background_sprite.pushSprite(0, 0);
   }
