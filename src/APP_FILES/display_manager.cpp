@@ -18,12 +18,13 @@
 // TFT_eSprite left_arrow_sprite = TFT_eSprite(&display_manager::tft);
 // TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
 
-  display_manager::screen_function display_manager::array_of_screens[5]{
+  display_manager::screen_function display_manager::array_of_screens[6]{
     draw_temperature_screen,
-    draw_logging_screen,
     draw_temperature_graph_screen,
     draw_chart_config_screen,
-    draw_alarm_config_screen
+    draw_logging_screen,
+    draw_alarm_config_screen,
+    draw_time_config_screen
   };
 
   void display_manager::draw_temperature_screen(){
@@ -204,26 +205,63 @@
       main_background_sprite.pushSprite(0, 0);
   }
 
+  void display_manager::draw_time_config_screen(){
+    auto& tmp = Logging::time_info;
+    char buffer[100];
 
+    sprintf(buffer, 
+          "%02i.%02i.%02i        %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
+          tmp.tm_hour, tmp.tm_min
+        );
+
+      main_background_sprite.fillSprite(TFT_BLACK);
+      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
+      right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
+      left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
+      right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
+
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+      main_background_sprite.setTextSize(2);
+      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
+      main_background_sprite.drawString("SET_TIME", 30, 50, 2);
+
+      main_background_sprite.pushSprite(0, 0);
+  }
   
   void display_manager::main(){ 
     static uint8_t refresh_state = 0;
     static unsigned long refresh_timer = 0;
     static uint8_t current_screen = 0;
 
+    static bool time_init = false;
+
+    if(!time_init){
+      // check if the time has been initialised
+      if(!(system_flags & DEV_STATE_RTC_OK)){
+        // start with date setting screen
+        current_screen = 5;
+      } 
+      time_init = true;
+    }
+
     touch_debouncer();
     touch_manager();
 
+    // switching between the screens
     if(LEFT_ARROW_PRESSED & touch_flags){
       if(current_screen == 0){
-        current_screen = 4;
+        current_screen = 5;
       }
       else{
         current_screen = current_screen - 1;
       }
     }
     else if(RIGHT_ARROW_PRESSED & touch_flags){
-      current_screen = (current_screen + 1) % 5;
+      current_screen = (current_screen + 1) % 6;
     }
 
     touch_flags = 0;
