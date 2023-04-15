@@ -13,9 +13,14 @@
 
 #include "GRAPHICS/set_alm.h"
 #include "GRAPHICS/clear_alm.h"
+#include "GRAPHICS/save_button.h"
+#include "GRAPHICS/ntp_button.h"
 
 #include "GRAPHICS/increment.h"
 #include "GRAPHICS/decrement.h"
+
+#include "GRAPHICS/sm_increment.h"
+#include "GRAPHICS/sm_decrement.h"
 
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
@@ -265,6 +270,7 @@ const char config_strings[3][30]{
   void display_manager::draw_time_config_screen(){
     auto& tmp = Logging::time_info;
     char buffer[100];
+    static auto static_time = Logging::time_info;
 
     sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
@@ -284,8 +290,29 @@ const char config_strings[3][30]{
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      main_background_sprite.drawString("SET_TIME", 30, 50, 2);
 
+      sprintf(buffer, "HOUR: %02i", static_time.tm_hour);
+      main_background_sprite.drawString(buffer, 20, 35, 2);
+      
+      sprintf(buffer, "MIN : %02i", static_time.tm_min);
+      main_background_sprite.drawString(buffer, 20, 65, 2);
+
+      sprintf(buffer, "DAY : %02i", static_time.tm_mday);
+      main_background_sprite.drawString(buffer, 20, 95, 2);
+
+      sprintf(buffer, "MON : %02i", static_time.tm_mon + 1);
+      main_background_sprite.drawString(buffer, 20, 125, 2);
+
+      sprintf(buffer, "YEAR: %i", static_time.tm_year + 1900);
+      main_background_sprite.drawString(buffer, 20, 155, 2);
+
+      for(int i = 0; i < 5; ++i){
+        main_background_sprite.pushImage(250, 40 + 30 * i, 25, 25, sm_decrement);
+        main_background_sprite.pushImage(280, 40 + 30 * i, 25, 25, sm_increment);
+      }
+
+      main_background_sprite.pushImage(60, 180, 100, 60, save_button);
+      main_background_sprite.pushImage(160, 180, 100, 60, ntp_button);
 
 
       main_background_sprite.pushSprite(0, 0);
