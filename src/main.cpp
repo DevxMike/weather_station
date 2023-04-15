@@ -98,6 +98,8 @@ void update_system_config(const config_info& c){
 void init_system_config(){
     if(SPIFFS.exists(CONFIG_FILE)){
         read_system_config();
+
+        Logging::logging_interval = (uint8_t)system_configuration.logging_config;
     }
     else{
         system_configuration.alarm_low = 17;
@@ -108,6 +110,8 @@ void init_system_config(){
         system_configuration.alarm_set = 0;
 
         update_system_config(system_configuration);
+
+        Logging::logging_interval = (uint8_t)system_configuration.logging_config;
     }
 }
 
@@ -275,8 +279,8 @@ void setup(){
   WiFi.mode(WIFI_STA); //Client
   const char* ssid = parsed["ssid"];
   const char* pass = parsed["pass"]; 
-  Logging::logging_interval = parsed["log"];
-  chart_freq = parsed["chart"];
+  // Logging::logging_interval = parsed["log"];
+  // chart_freq = parsed["chart"];
 
   Serial.println(ssid);
   Serial.println(pass);

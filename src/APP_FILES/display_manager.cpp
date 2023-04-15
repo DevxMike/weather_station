@@ -8,11 +8,20 @@
 #include "GRAPHICS/background_graph.h"
 #include "GRAPHICS/sky_bg.h"
 
+#include "GRAPHICS/active.h"
+#include "GRAPHICS/not_active.h"
+
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
 
 #define MIN_RIGHT_ARROW_X 260
 #define MIN_RIGHT_ARROW_Y 190
+
+const char config_strings[3][30]{
+  "EVERY 10 MIN",
+  "EVERY 30 MIN",
+  "EVERY HOUR  ",
+};
 
 // TFT_eSprite main_background_sprite = TFT_eSprite(&display_manager::tft);
 // TFT_eSprite left_arrow_sprite = TFT_eSprite(&display_manager::tft);
@@ -107,7 +116,7 @@ void needleMeter (){
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
-      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
@@ -117,11 +126,6 @@ void needleMeter (){
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      // tft.fillScreen(TFT_BLUE); 
-      // tft.setTextColor(TFT_WHITE, TFT_BLUE);
-
-      // display_manager::tft.setTextSize(2);
-      // tft.drawString(buffer, 2, 0, 2);
 
       if(millis() - temperature_timer > 3000){
         temp = temp * 0.9 + 0.1 * display_manager::bme_ref.readTemperature();
@@ -151,7 +155,7 @@ void needleMeter (){
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
-      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
@@ -162,7 +166,20 @@ void needleMeter (){
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      main_background_sprite.drawString("LOGGING CONFIG", 30, 50, 2);
+      main_background_sprite.drawString("LOG CONFIG", 100, 35, 2);
+
+      for(uint8_t i = 0; i < 3; ++i){
+        if(Logging::logging_interval == i){
+          main_background_sprite.pushImage(20, 70 + i * 40, 50, 38, active);  
+          main_background_sprite.setTextColor(TFT_BLACK, TFT_GREEN);
+        }
+        else{
+          main_background_sprite.pushImage(20, 70 + i * 40, 50, 38, not_active);
+          main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+        }
+
+        main_background_sprite.drawString(config_strings[i], 75, 72 + i * 40, 2);
+      }
 
       main_background_sprite.pushSprite(0, 0);
   }
@@ -178,7 +195,7 @@ void needleMeter (){
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
-      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
@@ -205,7 +222,7 @@ void needleMeter (){
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
-      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
@@ -232,7 +249,7 @@ void needleMeter (){
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
-      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
@@ -259,7 +276,7 @@ void needleMeter (){
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
-      main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
