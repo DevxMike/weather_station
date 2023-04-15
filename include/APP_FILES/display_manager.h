@@ -24,6 +24,10 @@ struct press_point{
 class display_manager{
 public:
   static TFT_eSPI tft;
+  static TFT_eSprite main_background_sprite;
+  static TFT_eSprite left_arrow_sprite; 
+  static TFT_eSprite right_arrow_sprite; 
+
   static bool refresh_window;
   static Linked_List message_list;
   static Adafruit_BME280& bme_ref;

@@ -12,10 +12,9 @@
 #define MIN_RIGHT_ARROW_X 260
 #define MIN_RIGHT_ARROW_Y 190
 
-TFT_eSprite main_background_sprite = TFT_eSprite(&display_manager::tft);
-TFT_eSprite left_arrow_sprite = TFT_eSprite(&display_manager::tft);
-TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
-
+// TFT_eSprite main_background_sprite = TFT_eSprite(&display_manager::tft);
+// TFT_eSprite left_arrow_sprite = TFT_eSprite(&display_manager::tft);
+// TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
 
   display_manager::screen_function display_manager::array_of_screens[5]{
     draw_temperature_screen,
@@ -89,7 +88,7 @@ TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
       main_background_sprite.drawString(buffer, 30, 40, 2);
       sprintf(buffer, "Humidity: %.1f", hum);
       main_background_sprite.drawString(buffer, 30, 70, 2);
-      sprintf(buffer, "Pressure: %.1f", press);
+      sprintf(buffer, "Pressure: %.1f", press / 100.0);
       main_background_sprite.drawString(buffer, 30, 100, 2);
 
       main_background_sprite.pushSprite(0, 0);

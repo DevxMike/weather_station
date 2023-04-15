@@ -139,7 +139,9 @@ void touch_calibrate(TFT_eSPI& tft)
 TFT_eSPI display_manager::tft = TFT_eSPI(); 
 Linked_List display_manager::message_list;
 
-
+TFT_eSprite display_manager::main_background_sprite = TFT_eSprite(&display_manager::tft);
+TFT_eSprite display_manager::left_arrow_sprite = TFT_eSprite(&display_manager::tft);
+TFT_eSprite display_manager::right_arrow_sprite = TFT_eSprite(&display_manager::tft);
 
 Adafruit_BME280 bme;
 Adafruit_BME280& Logging::bme_ref{bme};
