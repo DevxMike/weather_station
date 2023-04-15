@@ -1,37 +1,11 @@
-#include <Arduino.h>
-
-#include "WiFi.h"
-#include "FS.h"
-#include "SD.h"
-
-#include <NTPClient.h>
-#include <WiFiUdp.h>
-#include <PubSubClient.h>
-
-
-#include <WiFiClientSecure.h>
-#include <ArduinoJson.h>
-#define USE_DEBUG_MSG 
-
-#include <string.h>
-#include "time.h"
-
+#include "APP_FILES/main.h"
 #include "APP_FILES/file_management.h"
 #include "APP_FILES/list_of_communicates.h"
 #include "APP_FILES/display_manager.h"
 #include "APP_FILES/logger.h"
 #include "APP_FILES/bme_manager.h"
 
-#define DEV_STATE_SENSOR_OK 0x0001
-#define DEV_STATE_SD_OK 0x0002
-#define DEV_STATE_CONF_FILE_OK 0x0004
-#define DEV_STATE_WIFI_OK 0x0008
-#define DEV_STATE_RTC_OK 0x0010
-#define DEV_STATE_MQTT_OK 0x0020
-#define DEV_STATE_ADC_OK 0x0040
 
-#define CALIBRATION_FILE "/TouchCalData3"
-#define REPEAT_CAL false
 
 static const char *root_ca PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -68,8 +42,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 )EOF";
 
 uint32_t system_flags = 0;
-
-
 
 void touch_calibrate(TFT_eSPI& tft)
 {

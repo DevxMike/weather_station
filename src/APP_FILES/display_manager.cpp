@@ -1,5 +1,7 @@
 #include "APP_FILES/display_manager.h"
 #include "APP_FILES/logger.h"
+#include "APP_FILES/main.h"
+
 #include "GRAPHICS/arrow_left.h"
 #include "GRAPHICS/arrow_right.h"
 #include "GRAPHICS/background.h"
