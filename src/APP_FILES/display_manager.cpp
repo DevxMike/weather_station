@@ -11,6 +11,9 @@
 #include "GRAPHICS/active.h"
 #include "GRAPHICS/not_active.h"
 
+#include "GRAPHICS/set_alm.h"
+#include "GRAPHICS/clear_alm.h"
+
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
 
@@ -233,7 +236,19 @@ const char config_strings[3][30]{
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      main_background_sprite.drawString("SET_ALARM", 30, 50, 2);
+      main_background_sprite.drawString("ALM SETTINGS", 70, 35, 2);
+
+      sprintf(buffer, "LO TR: %i", system_configuration.alarm_low);
+      
+      main_background_sprite.drawString(buffer, 20, 90, 2);
+
+      sprintf(buffer, "HI TR: %i", system_configuration.alarm_high);
+
+      main_background_sprite.drawString(buffer, 20, 130, 2);
+
+      main_background_sprite.pushImage(110, 180, 100, 60,
+        !system_configuration.alarm_set? set_alm : clear_alm      
+      );
 
       main_background_sprite.pushSprite(0, 0);
   }
