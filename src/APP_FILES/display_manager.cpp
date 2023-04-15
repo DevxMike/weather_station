@@ -22,11 +22,15 @@
 #include "GRAPHICS/sm_increment.h"
 #include "GRAPHICS/sm_decrement.h"
 
+#include "GRAPHICS/chart.h"
+
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
 
 #define MIN_RIGHT_ARROW_X 260
 #define MIN_RIGHT_ARROW_Y 190
+
+#define CHART_START_Y 175
 
 const char config_strings[3][30]{
   "EVERY 10 MIN",
@@ -37,6 +41,19 @@ const char config_strings[3][30]{
 // TFT_eSprite main_background_sprite = TFT_eSprite(&display_manager::tft);
 // TFT_eSprite left_arrow_sprite = TFT_eSprite(&display_manager::tft);
 // TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
+  int16_t get_height(int16_t degrees){
+    if(degrees > 55){
+      degrees = 55;
+    }
+    else if(degrees < -20){
+      degrees = -19;
+    }
+
+    return int16_t((abs(-20 - degrees) * 15.0) / 10.0);
+  }
+  int16_t get_starting_point(int16_t height){
+    return CHART_START_Y - height;
+  }
 
   display_manager::screen_function display_manager::array_of_screens[6]{
     draw_temperature_screen,
@@ -159,7 +176,7 @@ const char config_strings[3][30]{
     auto& tmp = Logging::time_info;
     char buffer[100];
 
-    sprintf(buffer, 
+      sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
           tmp.tm_hour, tmp.tm_min
@@ -177,7 +194,19 @@ const char config_strings[3][30]{
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      main_background_sprite.drawString("TEMPERATURE GRAPH", 30, 50, 2);
+      // main_background_sprite.drawString("TEMPERATURE GRAPH", 30, 50, 2);
+      main_background_sprite.pushImage(20, 36, 280, 160, chart);
+
+      int16_t dummies[]{
+        -10, -15, 20, 30, 23, 12, 5
+      };
+
+      for(int i = 0; i < 7; ++i){
+        auto height = get_height(dummies[i]);
+        auto start_y = get_starting_point(height);
+
+        main_background_sprite.fillRect(48 + 7 * i, start_y, 5, height, TFT_GREEN);
+      }
 
       main_background_sprite.pushSprite(0, 0);
   }
@@ -355,7 +384,7 @@ const char config_strings[3][30]{
       case 1:
         if(millis() - refresh_timer >= 500){
           refresh_state = 0;
-          Serial.println(current_screen);
+          // Serial.println(current_screen);
         }
       break;
     }
@@ -432,6 +461,8 @@ const char config_strings[3][30]{
           if(tft.getTouch(&coords.x, &coords.y)){
             debouncer_state = 2;
             pressed = true;
+            Serial.println(coords.x);
+            Serial.println(coords.y);
           }
         }
 

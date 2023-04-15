@@ -386,11 +386,11 @@ void loop() {
 
   display_manager::main();
 
-  if(millis() - timer >= 1000){
-    const auto& tmp = Logging::time_info;
+  // if(millis() - timer >= 1000){
+  //   const auto& tmp = Logging::time_info;
 
-    sprintf(buffer, "%02d:%02d:%02d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec);
-    Serial.println(buffer);
-    timer = millis();
-  }
+  //   sprintf(buffer, "%02d:%02d:%02d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec);
+  //   Serial.println(buffer);
+  //   timer = millis();
+  // }
 }
