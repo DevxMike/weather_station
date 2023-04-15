@@ -4,7 +4,7 @@
 #include "APP_FILES/display_manager.h"
 #include "APP_FILES/logger.h"
 #include "APP_FILES/bme_manager.h"
-
+#include "APP_FILES/time_manager.h"
 
 
 static const char *root_ca PROGMEM = R"EOF(
@@ -126,6 +126,11 @@ SemaphoreHandle_t bme_semaphore {NULL};
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
+
+NTPClient& time_manager::client_ref{ timeClient };
+long time_manager::gmtOffset_sec;
+int time_manager::daylightOffset_sec;
+
 WiFiClientSecure espClient;
 PubSubClient mqttClient(espClient);
 int loging_freq, chart_freq;
@@ -137,14 +142,12 @@ const char* mqtt_password = "7^UCSDU')_7@7eU";
 struct tm Logging::time_info{ 0 };
 uint8_t Logging::logging_interval{ 0 };
 
-
-
 unsigned long delayTime;
 
 void setup(){
   Serial.begin(115200);
   
-  bme_semaphore = xSemaphoreCreateMutex();
+  // bme_semaphore = xSemaphoreCreateMutex();
 
   display_manager::tft.init();
   display_manager::tft.setRotation(1);
@@ -230,19 +233,15 @@ void setup(){
       }
       
       if(system_flags & DEV_STATE_WIFI_OK){
-        const char* ntpServer = "0.europe.pool.ntp.org";
-        const long  gmtOffset_sec = parsed["gmt_offset"];
-        const int   daylightOffset_sec = parsed["daylight_offset"];
+        time_manager::gmtOffset_sec = parsed["gmt_offset"];
+        time_manager::daylightOffset_sec = parsed["daylight_offset"];
+        
         struct tm timeinfo;
 
         display_manager::append_and_print_start_window("Initializing RTC from NTP");
         timeClient.begin();
 
-        while(!timeClient.update()) {
-            timeClient.forceUpdate();
-        }
-
-        configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+        time_manager::get_time_from_ntp();
 
         if(!getLocalTime(&timeinfo)){
           display_manager::append_and_print_start_window("Time error", false, true);  
