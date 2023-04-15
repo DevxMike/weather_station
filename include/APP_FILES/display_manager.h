@@ -27,6 +27,8 @@ public:
   static TFT_eSprite main_background_sprite;
   static TFT_eSprite left_arrow_sprite; 
   static TFT_eSprite right_arrow_sprite; 
+  static TFT_eSprite humidity_gauge_sprite; 
+  static TFT_eSprite temperature_gauge_sprite; 
 
   static bool refresh_window;
   static Linked_List message_list;

@@ -27,6 +27,46 @@
     draw_time_config_screen
   };
 
+  /*void drawScaleSmallGauge (){
+ 
+   j = 270;                                                                                 // start point of cirle segment
+   do {
+       angleCircle = (j* DEG2RAD);                                                          // angle expressed in radians - 1 degree = 0,01745331 radians      
+
+       edge_x1 = (center_x1+4 + (radius_s*cos (angleCircle)));                              // scale - note the 4 pixels offset in x      
+       edge_y1 = (center_y1 + (radius_s*sin (angleCircle)));                                // scale
+         
+       edge_x1_out = (center_x1+4 + ((radius_s+edgemarkerLength)*cos (angleCircle)));       // scale - note the 4 pixels offset in x   
+       edge_y1_out = (center_y1 + ((radius_s+edgemarkerLength)*sin (angleCircle)));         // scale
+        
+       tft.drawLine (edge_x1, edge_y1, edge_x1_out, edge_y1_out,MAGENTA); 
+ 
+       j = j+6; 
+   } 
+   while (j<356);                                                                           // end of circle segment
+}
+
+
+// ######################################################################################
+// #  small needle meter       - dynamic needle part                                    #
+// ######################################################################################
+
+void needleMeter (){                                                                         
+
+   tft.drawLine (pivotNeedle_x, pivotNeedle_y, needle_x_old, needle_y_old, 0);              // remove old needle by overwritig in white
+   
+   angleNeedle = (420*DEG2RAD - 1.5*hum_02*DEG2RAD);                                        // contains a 1.5 stretch factor to expand 60 percentage points over 90 degrees of scale
+
+   if (angleNeedle > 6.28) angleNeedle = 6.28;                                              // prevents the needle from ducking below horizontal    
+   needle_x = (pivotNeedle_x + ((needleLength)*cos (angleNeedle)));                         // calculate x coordinate needle point
+   needle_y = (pivotNeedle_y + ((needleLength)*sin (angleNeedle)));                         // calculate y coordinate needle point
+   needle_x_old = needle_x;                                                                 // remember previous needle position
+   needle_y_old = needle_y;
+
+   tft.drawLine (pivotNeedle_x, pivotNeedle_y, needle_x, needle_y,MAGENTA); 
+   tft.fillCircle (pivotNeedle_x, pivotNeedle_y, 2, MAGENTA);                               // restore needle pivot
+}*/
+
   void display_manager::draw_temperature_screen(){
       char buffer[100];
       static float temp = display_manager::bme_ref.readTemperature();
@@ -50,6 +90,9 @@
         right_arrow_sprite.setSwapBytes(true);
         main_background_sprite.setSwapBytes(true);
         display_manager::tft.setSwapBytes(true);
+
+        humidity_gauge_sprite.createSprite(80, 80);
+        temperature_gauge_sprite.createSprite(80, 80);
 
         init_sprite = true;
 
@@ -229,6 +272,8 @@
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       main_background_sprite.drawString("SET_TIME", 30, 50, 2);
 
+
+
       main_background_sprite.pushSprite(0, 0);
   }
   
@@ -238,15 +283,6 @@
     static uint8_t current_screen = 0;
 
     static bool time_init = false;
-
-    if(!time_init){
-      // check if the time has been initialised
-      if(!(system_flags & DEV_STATE_RTC_OK)){
-        // start with date setting screen
-        current_screen = 5;
-      } 
-      time_init = true;
-    }
 
     touch_debouncer();
     touch_manager();
@@ -283,9 +319,14 @@
       break;
     }
 
-    
-
-
+    if(!time_init){
+      // check if the time has been initialised
+      if(!(system_flags & DEV_STATE_RTC_OK)){
+        // start with date setting screen
+        current_screen = 5;
+      } 
+      time_init = true;
+    }
     // if(pressed){
     //   Serial.print(coords.x);
     //   Serial.print(", ");

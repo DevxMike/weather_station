@@ -7,6 +7,9 @@
 #include "FS.h"
 #include "SD.h"
 
+#include <SD.h>
+#include <FS.h>
+
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <PubSubClient.h>
@@ -28,8 +31,21 @@
 #define DEV_STATE_ADC_OK 0x0040
 
 #define CALIBRATION_FILE "/TouchCalData3"
+#define CONFIG_FILE "/ConfigData1.bin"
 #define REPEAT_CAL false
 
+#define DEG2RAD 0.0174532925 
+
+struct config_info{
+    char alarm_low; // lower threshold of temperature
+    char alarm_high; // upper threshold of temperature
+    char logging_config; // logging frequency 
+    char messaging_config; // messaging frequency
+    char graph_config; // drawing frequency
+    char alarm_set; // is alarm set
+};
+
 extern uint32_t system_flags;
+extern config_info system_configuration;
 
 #endif
