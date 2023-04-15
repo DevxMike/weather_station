@@ -14,6 +14,9 @@
 #include "GRAPHICS/set_alm.h"
 #include "GRAPHICS/clear_alm.h"
 
+#include "GRAPHICS/increment.h"
+#include "GRAPHICS/decrement.h"
+
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
 
@@ -241,10 +244,16 @@ const char config_strings[3][30]{
       sprintf(buffer, "LO TR: %i", system_configuration.alarm_low);
       
       main_background_sprite.drawString(buffer, 20, 90, 2);
+      main_background_sprite.pushImage(230, 85, 40, 40, decrement);
+      main_background_sprite.pushImage(280, 85, 40, 40, increment);
+
 
       sprintf(buffer, "HI TR: %i", system_configuration.alarm_high);
 
       main_background_sprite.drawString(buffer, 20, 130, 2);
+
+      main_background_sprite.pushImage(230, 125, 40, 40, decrement);
+      main_background_sprite.pushImage(280, 125, 40, 40, increment);
 
       main_background_sprite.pushImage(110, 180, 100, 60,
         !system_configuration.alarm_set? set_alm : clear_alm      
