@@ -55,7 +55,7 @@ void Logging::main(void* args){
 
           auto tmp = time_diff(old_seconds, now_seconds);
 
-          switch(logging_interval){
+          switch(system_configuration.logging_config){
             case 0:
                 if(tmp >= 10){
                     get_old_time = true;

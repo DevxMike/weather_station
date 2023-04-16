@@ -1,6 +1,7 @@
 #include "APP_FILES/display_manager.h"
 #include "APP_FILES/logger.h"
 #include "APP_FILES/main.h"
+#include "APP_FILES/file_management.h"
 
 #include "GRAPHICS/arrow_left.h"
 #include "GRAPHICS/arrow_right.h"
@@ -24,23 +25,31 @@
 
 #include "GRAPHICS/chart.h"
 
+#include "GRAPHICS/temp_gauge.h"
+
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
 
 #define MIN_RIGHT_ARROW_X 260
 #define MIN_RIGHT_ARROW_Y 190
 
+#define MIN_CHOICE_X 20
+#define MAX_CHOICE_X 70
+#define MIN_CHOICE_1_Y 70
+#define MAX_CHOICE_1_Y 108
+#define MIN_CHOICE_2_Y 110
+#define MAX_CHOICE_2_Y 148
+#define MIN_CHOICE_3_Y 150
+#define MAX_CHOICE_3_Y 188
+
 #define CHART_START_Y 175
 
 const char config_strings[3][30]{
-  "EVERY 10 MIN",
-  "EVERY 30 MIN",
-  "EVERY HOUR  ",
+  " EVERY 10 MIN ",
+  " EVERY 30 MIN ",
+  " EVERY HOUR   ",
 };
 
-// TFT_eSprite main_background_sprite = TFT_eSprite(&display_manager::tft);
-// TFT_eSprite left_arrow_sprite = TFT_eSprite(&display_manager::tft);
-// TFT_eSprite right_arrow_sprite = TFT_eSprite(&display_manager::tft);
   int16_t get_height(int16_t degrees){
     if(degrees > 55){
       degrees = 55;
@@ -49,7 +58,7 @@ const char config_strings[3][30]{
       degrees = -19;
     }
 
-    return int16_t((abs(-20 - degrees) * 15.0) / 10.0);
+    return int16_t((abs(-20 - degrees) * 16.5) / 10.0);
   }
   int16_t get_starting_point(int16_t height){
     return CHART_START_Y - height;
@@ -110,7 +119,7 @@ const char config_strings[3][30]{
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
-      main_background_sprite.setTextColor(TFT_WHITE, TFT_TRANSPARENT);
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
       main_background_sprite.setTextSize(2);
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
@@ -128,6 +137,11 @@ const char config_strings[3][30]{
       main_background_sprite.drawString(buffer, 30, 70, 2);
       sprintf(buffer, "Pressure: %.1f", press / 100.0);
       main_background_sprite.drawString(buffer, 30, 100, 2);
+
+      // main_background_sprite.pushImage(60, 35, 200, 199, temp_gauge);
+      // main_background_sprite.drawCircle(160, 155, 100, TFT_BLACK);
+      // main_background_sprite.drawCircle(160, 155, 99, TFT_BLACK);
+      // main_background_sprite.drawCircle(160, 155, 98, TFT_BLACK);
 
       main_background_sprite.pushSprite(0, 0);
   }
@@ -156,8 +170,27 @@ const char config_strings[3][30]{
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       main_background_sprite.drawString("LOG CONFIG", 80, 35, 2);
 
+      bool changed = false;
+
+      if(CHOICE_1_PRESSED & touch_flags){
+        system_configuration.logging_config = 0;
+        changed = true;
+      }
+      else if(CHOICE_2_PRESSED & touch_flags){
+        system_configuration.logging_config = 1;
+        changed = true;
+      }
+      else if(CHOICE_3_PRESSED & touch_flags){
+        system_configuration.logging_config = 2;
+        changed = true;
+      }
+
+      if(changed){
+        update_system_config();
+      }
+
       for(uint8_t i = 0; i < 3; ++i){
-        if(Logging::logging_interval == i){
+        if(system_configuration.logging_config == i){
           main_background_sprite.pushImage(20, 70 + i * 40, 50, 38, active);  
           main_background_sprite.setTextColor(TFT_BLACK, TFT_GREEN);
         }
@@ -205,7 +238,7 @@ const char config_strings[3][30]{
         auto height = get_height(dummies[i]);
         auto start_y = get_starting_point(height);
 
-        main_background_sprite.fillRect(48 + 7 * i, start_y, 5, height, TFT_GREEN);
+        main_background_sprite.fillRect(48 + 12 * i, start_y, 10, height, TFT_GREEN);
       }
 
       main_background_sprite.pushSprite(0, 0);
@@ -234,6 +267,25 @@ const char config_strings[3][30]{
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       main_background_sprite.drawString("CHART UPDATE", 70, 35, 2);
+
+      bool changed = false;
+
+      if(CHOICE_1_PRESSED & touch_flags){
+        system_configuration.graph_config = 0;
+        changed = true;
+      }
+      else if(CHOICE_2_PRESSED & touch_flags){
+        system_configuration.graph_config = 1;
+        changed = true;
+      }
+      else if(CHOICE_3_PRESSED & touch_flags){
+        system_configuration.graph_config = 2;
+        changed = true;
+      }
+
+      if(changed){
+        update_system_config();
+      }
 
       for(uint8_t i = 0; i < 3; ++i){
         if(system_configuration.graph_config == i){
@@ -277,9 +329,9 @@ const char config_strings[3][30]{
 
       sprintf(buffer, "LO TR: %i", system_configuration.alarm_low);
       
-      main_background_sprite.drawString(buffer, 20, 90, 2);
-      main_background_sprite.pushImage(230, 85, 40, 40, decrement);
-      main_background_sprite.pushImage(280, 85, 40, 40, increment);
+      main_background_sprite.drawString(buffer, 20, 85, 2);
+      main_background_sprite.pushImage(230, 80, 40, 40, decrement);
+      main_background_sprite.pushImage(280, 80, 40, 40, increment);
 
 
       sprintf(buffer, "HI TR: %i", system_configuration.alarm_high);
@@ -289,7 +341,7 @@ const char config_strings[3][30]{
       main_background_sprite.pushImage(230, 125, 40, 40, decrement);
       main_background_sprite.pushImage(280, 125, 40, 40, increment);
 
-      main_background_sprite.pushImage(110, 180, 100, 60,
+      main_background_sprite.pushImage(110, 185, 100, 60,
         !system_configuration.alarm_set? set_alm : clear_alm      
       );
 
@@ -340,8 +392,8 @@ const char config_strings[3][30]{
         main_background_sprite.pushImage(280, 40 + 30 * i, 25, 25, sm_increment);
       }
 
-      main_background_sprite.pushImage(60, 180, 100, 60, save_button);
-      main_background_sprite.pushImage(160, 180, 100, 60, ntp_button);
+      main_background_sprite.pushImage(60, 185, 100, 60, save_button);
+      main_background_sprite.pushImage(160, 185, 100, 60, ntp_button);
 
 
       main_background_sprite.pushSprite(0, 0);
@@ -370,9 +422,10 @@ const char config_strings[3][30]{
       current_screen = (current_screen + 1) % 6;
     }
 
-    touch_flags = 0;
 
     array_of_screens[current_screen]();
+
+    touch_flags = 0;
     
     // draw_temperature_screen(tft);
     switch(refresh_state){
@@ -484,8 +537,14 @@ const char config_strings[3][30]{
       else if(coords.x >= MIN_RIGHT_ARROW_X && coords.y >= MIN_RIGHT_ARROW_Y){
         touch_flags |= RIGHT_ARROW_PRESSED;
       }
-      else{
-        //TODO
+      else if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_1_Y && coords.y <= MAX_CHOICE_1_Y){
+        touch_flags |= CHOICE_1_PRESSED;
+      }
+      else if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_2_Y && coords.y <= MAX_CHOICE_2_Y){
+        touch_flags |= CHOICE_2_PRESSED;
+      }
+      else if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_3_Y && coords.y <= MAX_CHOICE_3_Y){
+        touch_flags |= CHOICE_3_PRESSED;
       }
 
       pressed = false;

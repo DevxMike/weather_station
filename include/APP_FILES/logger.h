@@ -6,13 +6,13 @@
 #include <Adafruit_BME280.h>
 
 #include "APP_FILES/file_management.h"
+#include "APP_FILES/main.h"
 
 extern SemaphoreHandle_t bme_semaphore;
 
 class Logging{
 public:
   static Adafruit_BME280& bme_ref;
-  static uint8_t logging_interval;
   static struct tm time_info;
   static void main(void* args);
 };

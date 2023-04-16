@@ -46,6 +46,6 @@ struct config_info{
 };
 
 extern uint32_t system_flags;
-extern config_info system_configuration;
+extern volatile config_info system_configuration;
 
 #endif

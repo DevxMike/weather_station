@@ -76,3 +76,76 @@ void get_json_file(char* buffer, const char* fname){
 
   file.close();
 }
+
+void read_system_config(){
+    char buffer[6] = { 0 };
+
+    File f = SPIFFS.open(CONFIG_FILE, "rb");
+    
+    if(!f){
+        Serial.println("File does not exist");
+        return;
+    }
+    
+    auto tmp = f.readBytes(buffer, 6);
+    
+    Serial.println("Config succesfully read");
+
+    char debug_buff[100];
+
+    sprintf(debug_buff, "%u, %u, %u, %u, %u, %u\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+
+    Serial.println(debug_buff);
+
+    system_configuration.alarm_low = buffer[0];
+    system_configuration.alarm_high = buffer[1];
+    system_configuration.logging_config = buffer[2];
+    system_configuration.messaging_config = buffer[3];
+    system_configuration.graph_config = buffer[4];
+    system_configuration.alarm_set = buffer[5];
+
+    f.close();
+}
+
+void update_system_config(){
+    char buffer[6] = { 
+        system_configuration.alarm_low,
+        system_configuration.alarm_high,
+        system_configuration.logging_config,
+        system_configuration.messaging_config,
+        system_configuration.graph_config,
+        system_configuration.alarm_set
+    };
+
+    char debug_buff[100];
+
+    sprintf(debug_buff, "%u, %u, %u, %u, %u, %u\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+
+    Serial.println(debug_buff);
+
+    File f = SPIFFS.open(CONFIG_FILE, "wb");
+
+    if(f){
+        f.write((const unsigned char *)buffer, 6);
+
+        Serial.println("Config saved");
+    }
+
+    f.close();
+}
+
+void init_system_config(){
+    if(SPIFFS.exists(CONFIG_FILE)){
+        read_system_config();
+    }
+    else{
+        system_configuration.alarm_low = 17;
+        system_configuration.alarm_high = 25;
+        system_configuration.logging_config = 1;
+        system_configuration.messaging_config = 1;
+        system_configuration.graph_config = 1;
+        system_configuration.alarm_set = 0;
+
+        update_system_config();
+    }
+}

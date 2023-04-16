@@ -13,8 +13,23 @@
 #define CHOICE_1_PRESSED 0x04
 #define CHOICE_2_PRESSED 0x08
 #define CHOICE_3_PRESSED 0x10
-#define SET_ON_PRESSED 0x20
-#define SET_OFF_PRESSED 0x40
+#define SET_ALM_ON_OFF_PRESSED 0x20
+#define GET_FROM_NTP_PRESSED 0x40
+#define SAVE_DATETIME_PRESSED 0x80
+#define INC_LO_TR_PRESSED 0x100
+#define DEC_LO_TR_PRESSED 0x200
+#define INC_HI_TR_PRESSED 0x400
+#define DEC_HI_TR_PRESSED 0x800
+#define INC_HOUR_PRESSED 0x1000
+#define DEC_HOUR_PRESSED 0x2000
+#define INC_MIN_PRESSED 0x4000
+#define DEC_MIN_PRESSED 0x8000
+#define INC_DAY_PRESSED 0x10000
+#define DEC_DAY_PRESSED 0x20000
+#define INC_MON_PRESSED 0x40000
+#define DEC_MON_PRESSED 0x80000
+#define INC_YEAR_PRESSED 0x100000
+#define DEC_YEAR_PRESSED 0x200000
 
 struct press_point{
   uint16_t x;
@@ -51,7 +66,7 @@ private:
   static void draw_logging_screen();
   static void write_status(bool ok, int x, int y);
   static bool pressed;
-  static uint16_t touch_flags;
+  static uint32_t touch_flags;
 };
 
 #endif
