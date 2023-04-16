@@ -2,6 +2,7 @@
 #include "APP_FILES/logger.h"
 #include "APP_FILES/main.h"
 #include "APP_FILES/file_management.h"
+#include "APP_FILES/time_manager.h"
 
 #include "GRAPHICS/arrow_left.h"
 #include "GRAPHICS/arrow_right.h"
@@ -72,6 +73,48 @@
 #define MAX_SET_CLR_Y 238
 
 /* ALARM SCREEN END */
+
+/* DATETIME SCREEN START */
+
+#define MIN_SM_DEC_X 250
+#define MAX_SM_DEC_X 275
+
+#define MIN_SM_INC_X 280
+#define MAX_SM_INC_X 305
+
+#define MIN_SM_DEC_1_Y 40
+#define MAX_SM_DEC_1_Y 65
+#define MIN_SM_DEC_2_Y 70
+#define MAX_SM_DEC_2_Y 95
+#define MIN_SM_DEC_3_Y 100
+#define MAX_SM_DEC_3_Y 125
+#define MIN_SM_DEC_4_Y 130
+#define MAX_SM_DEC_4_Y 155
+#define MIN_SM_DEC_5_Y 160
+#define MAX_SM_DEC_5_Y 185
+
+#define MIN_SM_INC_1_Y 40
+#define MAX_SM_INC_1_Y 65
+#define MIN_SM_INC_2_Y 70
+#define MAX_SM_INC_2_Y 95
+#define MIN_SM_INC_3_Y 100
+#define MAX_SM_INC_3_Y 125
+#define MIN_SM_INC_4_Y 130
+#define MAX_SM_INC_4_Y 155
+#define MIN_SM_INC_5_Y 160
+#define MAX_SM_INC_5_Y 185
+
+#define MIN_SAVE_X 70
+#define MAX_SAVE_X 145
+#define MIN_NTP_X 175
+#define MAX_NTP_X 250
+
+#define MIN_SAVE_Y 200
+#define MAX_SAVE_Y 238
+#define MIN_NTP_Y 200 
+#define MAX_NTP_Y 238
+
+/* DATETIME SCREEN END */
 
 #define CHART_START_Y 175
 
@@ -439,6 +482,74 @@ const char config_strings[3][30]{
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
 
+      if(INC_HOUR_PRESSED & touch_flags){
+        static_time.tm_hour = (static_time.tm_hour + 1) % 24;
+      }
+      else if(INC_MIN_PRESSED & touch_flags){
+        static_time.tm_min = (static_time.tm_min + 1) % 60; 
+      }
+      else if(INC_DAY_PRESSED & touch_flags){
+        static_time.tm_mday = (static_time.tm_mday + 1) % 31;
+        if(static_time.tm_mday == 0){
+          static_time.tm_mday = 1;
+        } 
+      }
+      else if(INC_MON_PRESSED & touch_flags){
+        static_time.tm_mon = (static_time.tm_mon + 1) % 12; 
+      }
+      else if(INC_YEAR_PRESSED & touch_flags){
+        static_time.tm_year = (static_time.tm_year + 1) % 300;
+      } 
+      else if(DEC_HOUR_PRESSED & touch_flags){
+        if(static_time.tm_hour == 0){
+          static_time.tm_hour = 23;
+        }
+        else{
+          static_time.tm_hour -= 1;
+        }
+      }
+      else if(DEC_MIN_PRESSED & touch_flags){
+        if(static_time.tm_min == 0){
+          static_time.tm_min = 59;
+        }
+        else{
+          static_time.tm_min -= 1;
+        }
+      }
+      else if(DEC_DAY_PRESSED & touch_flags){
+        if(static_time.tm_mday == 1){
+          static_time.tm_mday = 31;
+        }
+        else{
+          static_time.tm_mday -= 1;
+        }
+      }
+      else if(DEC_MON_PRESSED & touch_flags){
+        if(static_time.tm_mon == 0){
+          static_time.tm_mon = 11;
+        }
+        else{
+          static_time.tm_mon -= 1;
+        }
+      }
+      else if(DEC_YEAR_PRESSED & touch_flags){
+        if(static_time.tm_year == 0){
+          static_time.tm_year = 299;
+        }
+        else{
+          static_time.tm_year -= 1;
+        }
+      } 
+      else if(SAVE_DATETIME_PRESSED & touch_flags){
+        time_manager::set_local_time(
+          static_time.tm_year, static_time.tm_mon, static_time.tm_mday,
+          static_time.tm_hour, static_time.tm_min, 0, 1
+          );
+      }
+      else if(GET_FROM_NTP_PRESSED & touch_flags){
+        time_manager::get_time_from_ntp();
+      }
+
       sprintf(buffer, "HOUR: %02i", static_time.tm_hour);
       main_background_sprite.drawString(buffer, 20, 35, 2);
       
@@ -601,32 +712,70 @@ const char config_strings[3][30]{
       if(coords.x <= MAX_LEFT_ARROW_X && coords.y >= MIN_LEFT_ARROW_Y){
         touch_flags |= LEFT_ARROW_PRESSED;
       }
-      else if(coords.x >= MIN_RIGHT_ARROW_X && coords.y >= MIN_RIGHT_ARROW_Y){
+      if(coords.x >= MIN_RIGHT_ARROW_X && coords.y >= MIN_RIGHT_ARROW_Y){
         touch_flags |= RIGHT_ARROW_PRESSED;
       }
-      else if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_1_Y && coords.y <= MAX_CHOICE_1_Y){
+      if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_1_Y && coords.y <= MAX_CHOICE_1_Y){
         touch_flags |= CHOICE_1_PRESSED;
       }
-      else if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_2_Y && coords.y <= MAX_CHOICE_2_Y){
+      if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_2_Y && coords.y <= MAX_CHOICE_2_Y){
         touch_flags |= CHOICE_2_PRESSED;
       }
-      else if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_3_Y && coords.y <= MAX_CHOICE_3_Y){
+      if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_3_Y && coords.y <= MAX_CHOICE_3_Y){
         touch_flags |= CHOICE_3_PRESSED;
       }
-      else if(coords.x >= MIN_INC_X && coords.x <= MAX_INC_X && coords.y >= MIN_INC_1_Y && coords.y <= MAX_INC_1_Y){
+      if(coords.x >= MIN_INC_X && coords.x <= MAX_INC_X && coords.y >= MIN_INC_1_Y && coords.y <= MAX_INC_1_Y){
         touch_flags |= INC_LO_TR_PRESSED;
       }
-      else if(coords.x >= MIN_INC_X && coords.x <= MAX_INC_X && coords.y >= MIN_INC_2_Y && coords.y <= MAX_INC_2_Y){
+      if(coords.x >= MIN_INC_X && coords.x <= MAX_INC_X && coords.y >= MIN_INC_2_Y && coords.y <= MAX_INC_2_Y){
         touch_flags |= INC_HI_TR_PRESSED;
       }
-      else if(coords.x >= MIN_DEC_X && coords.x <= MAX_DEC_X && coords.y >= MIN_DEC_1_Y && coords.y <= MAX_DEC_1_Y){
+      if(coords.x >= MIN_DEC_X && coords.x <= MAX_DEC_X && coords.y >= MIN_DEC_1_Y && coords.y <= MAX_DEC_1_Y){
         touch_flags |= DEC_LO_TR_PRESSED;
       }
-      else if(coords.x >= MIN_DEC_X && coords.x <= MAX_DEC_X && coords.y >= MIN_DEC_2_Y && coords.y <= MAX_DEC_2_Y){
+      if(coords.x >= MIN_DEC_X && coords.x <= MAX_DEC_X && coords.y >= MIN_DEC_2_Y && coords.y <= MAX_DEC_2_Y){
         touch_flags |= DEC_HI_TR_PRESSED;
       }
-      else if(coords.x >= MIN_SET_CLR_X && coords.x <= MAX_SET_CLR_X && coords.y >= MIN_SET_CLR_Y && coords.y <= MAX_SET_CLR_Y){
+      if(coords.x >= MIN_SET_CLR_X && coords.x <= MAX_SET_CLR_X && coords.y >= MIN_SET_CLR_Y && coords.y <= MAX_SET_CLR_Y){
         touch_flags |= SET_ALM_ON_OFF_PRESSED;
+      }
+      if(coords.x >= MIN_SM_DEC_X && coords.x <= MAX_SM_DEC_X && coords.y >= MIN_SM_DEC_1_Y && coords.y <= MAX_SM_DEC_1_Y){
+        touch_flags |= DEC_HOUR_PRESSED;
+      }
+      if(coords.x >= MIN_SM_DEC_X && coords.x <= MAX_SM_DEC_X && coords.y >= MIN_SM_DEC_2_Y && coords.y <= MAX_SM_DEC_2_Y){
+        touch_flags |= DEC_MIN_PRESSED;
+      }
+      if(coords.x >= MIN_SM_DEC_X && coords.x <= MAX_SM_DEC_X && coords.y >= MIN_SM_DEC_3_Y && coords.y <= MAX_SM_DEC_3_Y){
+        touch_flags |= DEC_DAY_PRESSED;
+      }
+      if(coords.x >= MIN_SM_DEC_X && coords.x <= MAX_SM_DEC_X && coords.y >= MIN_SM_DEC_4_Y && coords.y <= MAX_SM_DEC_4_Y){
+        touch_flags |= DEC_MON_PRESSED;
+      }
+      if(coords.x >= MIN_SM_DEC_X && coords.x <= MAX_SM_DEC_X && coords.y >= MIN_SM_DEC_5_Y && coords.y <= MAX_SM_DEC_5_Y){
+        touch_flags |= DEC_YEAR_PRESSED;
+      }
+      if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_1_Y && coords.y <= MAX_SM_INC_1_Y){
+        touch_flags |= INC_HOUR_PRESSED;
+      }
+      if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_2_Y && coords.y <= MAX_SM_INC_2_Y){
+        touch_flags |= INC_MIN_PRESSED;
+      }
+      if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_3_Y && coords.y <= MAX_SM_INC_3_Y){
+        Serial.println("Hello");
+        touch_flags |= INC_DAY_PRESSED;
+      }
+      if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_4_Y && coords.y <= MAX_SM_INC_4_Y){
+        Serial.println("Hello");
+        touch_flags |= INC_MON_PRESSED;
+      }
+      if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_5_Y && coords.y <= MAX_SM_INC_5_Y){
+        touch_flags |= INC_YEAR_PRESSED;
+      }
+      if(coords.x >= MIN_SAVE_X && coords.x <= MAX_SAVE_X && coords.y >= MIN_SAVE_Y && coords.y <= MAX_SAVE_Y){
+        touch_flags |= SAVE_DATETIME_PRESSED;
+      }
+      if(coords.x >= MIN_NTP_X && coords.x <= MAX_NTP_X && coords.y >= MIN_NTP_Y && coords.y <= MAX_NTP_Y){
+        touch_flags |= GET_FROM_NTP_PRESSED;
       }
 
       pressed = false;

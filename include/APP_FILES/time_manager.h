@@ -13,9 +13,9 @@ public:
     static void get_time_from_ntp(){
         const char* ntpServer = "0.europe.pool.ntp.org";
 
-        while(!client_ref.update()) {
-            client_ref.forceUpdate();
-        }
+        // while(!client_ref.update()) {
+        //     client_ref.forceUpdate();
+        // }
 
         configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     }
@@ -24,8 +24,8 @@ public:
     static void set_local_time(int year, int month, int mday, int hr, int minute, int sec, int is_dst){
         struct tm tm;
 
-        tm.tm_year = year - 1900;  
-        tm.tm_mon = month-1;
+        tm.tm_year = year;  
+        tm.tm_mon = month;
         tm.tm_mday = mday;
         tm.tm_hour = hr;      
         tm.tm_min = minute;
