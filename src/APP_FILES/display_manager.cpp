@@ -137,7 +137,7 @@ const char config_strings[3][30]{
   " EVERY HOUR   ",
 };
 
-  int16_t get_height(int16_t degrees){
+  int16_t get_height(float degrees){
     if(degrees > 55){
       degrees = 55;
     }
@@ -145,7 +145,7 @@ const char config_strings[3][30]{
       degrees = -19;
     }
 
-    return int16_t((abs(-20 - degrees) * 16.5) / 10.0);
+    return int16_t((abs(((-20 - degrees)* 16.5)/ 10.0)) );
   }
   int16_t get_starting_point(int16_t height){
     return CHART_START_Y - height;
@@ -402,16 +402,19 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       // main_background_sprite.drawString("TEMPERATURE GRAPH", 30, 50, 2);
       main_background_sprite.pushImage(20, 36, 280, 160, chart);
+      
+      auto values = Logging::chart_list.get_elements();
 
-      int16_t dummies[]{
-        -10, -15, 20, 30, 23, 12, 5
-      };
+      int i = 0;
 
-      for(int i = 0; i < 7; ++i){
-        auto height = get_height(dummies[i]);
+      while(values != nullptr){
+        auto height = get_height(values->temperature);
         auto start_y = get_starting_point(height);
 
         main_background_sprite.fillRect(48 + 12 * i, start_y, 10, height, TFT_GREEN);
+
+        ++i;
+        values = values->next;
       }
 
       main_background_sprite.pushSprite(0, 0);

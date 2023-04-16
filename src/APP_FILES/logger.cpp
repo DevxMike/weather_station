@@ -78,3 +78,63 @@ void Logging::main(void* args){
         break;
       }
   }
+
+  void Logging::log_for_chart(void* args){
+    static uint8_t logger_state = 0;
+    static unsigned long timer = 0;
+    static struct timeval old_seconds;
+    static struct timeval now_seconds;
+    static bool get_old_time = true;
+    
+      switch(logger_state){
+        case 0:
+        getLocalTime(&time_info);
+        gettimeofday(&now_seconds, NULL);
+
+
+        if(get_old_time){
+          get_old_time = false;
+          gettimeofday(&old_seconds, NULL);
+             
+
+        //   xSemaphoreTake(bme_semaphore, portMAX_DELAY);
+
+            auto temp = bme_ref.readTemperature();
+
+            chart_list.append(temp, system_configuration.graph_config);
+        //   xSemaphoreGive(bme_semaphore);
+        }
+
+        timer = millis();
+        logger_state = 1;
+        break;
+
+        case 1:
+        if(millis() - timer >= 1000){
+          logger_state = 0;
+
+          auto tmp = time_diff(old_seconds, now_seconds);
+
+          switch(system_configuration.graph_config){
+            case 0:
+                if(tmp >= 10){
+                    get_old_time = true;
+                }
+            break;
+
+            case 1:
+                if(tmp >= 30){
+                    get_old_time = true;
+                }
+            break;
+            
+            case 2:
+                if(tmp >= 60){
+                    get_old_time = true;
+                }
+            break;
+          }
+        }
+        break;
+      }
+  }

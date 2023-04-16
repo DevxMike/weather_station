@@ -7,7 +7,7 @@
 #define MAX_LINES 10
 
 typedef struct temperature_log{
-  int16_t temperature;
+  float temperature;
   int16_t time_ago;
   struct temperature_log* next;
 };

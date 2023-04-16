@@ -111,6 +111,7 @@ void touch_calibrate(TFT_eSPI& tft)
 
 TFT_eSPI display_manager::tft = TFT_eSPI(); 
 Linked_List display_manager::message_list;
+list_of_logs Logging::chart_list;
 
 TFT_eSprite display_manager::main_background_sprite = TFT_eSprite(&display_manager::tft);
 TFT_eSprite display_manager::left_arrow_sprite = TFT_eSprite(&display_manager::tft);
@@ -311,6 +312,7 @@ void loop() {
   static char buffer[50];
 
   Logging::main(NULL);
+  Logging::log_for_chart(NULL);
 
   display_manager::main();
 
