@@ -26,7 +26,8 @@
 
 #include "GRAPHICS/chart.h"
 
-#include "GRAPHICS/temp_gauge.h"
+#include "GRAPHICS/gauge1_sm.h"
+#include "GRAPHICS/gauge2_sm.h"
 
 /* NAVIGATION BUTTONS START */
 
@@ -205,12 +206,16 @@ const char config_strings[3][30]{
         temperature_timer = millis();
       }
 
-      sprintf(buffer, "Temperature: %.1f", temp);
-      main_background_sprite.drawString(buffer, 30, 40, 2);
-      sprintf(buffer, "Humidity: %.1f", hum);
-      main_background_sprite.drawString(buffer, 30, 70, 2);
-      sprintf(buffer, "Pressure: %.1f", press / 100.0);
-      main_background_sprite.drawString(buffer, 30, 100, 2);
+      // sprintf(buffer, "Temperature: %.1f", temp);
+      // main_background_sprite.drawString(buffer, 30, 40, 2);
+      // sprintf(buffer, "Humidity: %.1f", hum);
+      // main_background_sprite.drawString(buffer, 30, 70, 2);
+      // sprintf(buffer, "Pressure: %.1f", press / 100.0);
+      // main_background_sprite.drawString(buffer, 30, 100, 2);
+
+      main_background_sprite.pushImage(20, 35, 130, 130, gauge1_sm);
+      main_background_sprite.pushImage(160, 35, 130, 129, gauge2_sm);
+
 
       // main_background_sprite.pushImage(60, 35, 200, 199, temp_gauge);
       // main_background_sprite.drawCircle(160, 155, 100, TFT_BLACK);
