@@ -29,6 +29,8 @@
 #include "GRAPHICS/gauge1_sm.h"
 #include "GRAPHICS/gauge2_sm.h"
 
+#include <math.h>
+
 /* NAVIGATION BUTTONS START */
 
 #define MAX_LEFT_ARROW_X 50
@@ -117,6 +119,16 @@
 
 /* DATETIME SCREEN END */
 
+#define BARO_X0 100
+#define BARO_Y0 115
+#define BARO_RADIUS 72
+#define BARO_STEP 4.2
+
+#define BARO_MIN 978
+#define BARO_MAX 1050.5
+
+#define BARO_MIN_ANGLE 135
+
 #define CHART_START_Y 175
 
 const char config_strings[3][30]{
@@ -148,11 +160,24 @@ const char config_strings[3][30]{
     draw_time_config_screen
   };
 
+
+struct Point {
+    double x;
+    double y;
+};
+
+struct Point get_point_on_circle(struct Point center, double radius, double angle_degrees) {
+    double angle_radians = angle_degrees * M_PI / 180.0;
+    double x = center.x + radius * cos(angle_radians);
+    double y = center.y + radius * sin(angle_radians);
+    struct Point p = {x, y};
+    return p;
+}
   void display_manager::draw_temperature_screen(){
       char buffer[100];
       static float temp = display_manager::bme_ref.readTemperature();
       static float hum = display_manager::bme_ref.readHumidity();
-      static float press = display_manager::bme_ref.readPressure();
+      static float press = display_manager::bme_ref.readPressure() / 100;
 
       static unsigned long temperature_timer;
 
@@ -188,7 +213,7 @@ const char config_strings[3][30]{
         );
 
       main_background_sprite.fillSprite(TFT_BLACK);
-      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
@@ -202,25 +227,94 @@ const char config_strings[3][30]{
       if(millis() - temperature_timer > 3000){
         temp = temp * 0.9 + 0.1 * display_manager::bme_ref.readTemperature();
         hum = hum * 0.9 + 0.1 * display_manager::bme_ref.readHumidity();
-        press = press * 0.9 + 0.1 * display_manager::bme_ref.readPressure();
+        press = press * 0.9 + 0.1 * (display_manager::bme_ref.readPressure() / 100);
         temperature_timer = millis();
       }
 
-      // sprintf(buffer, "Temperature: %.1f", temp);
-      // main_background_sprite.drawString(buffer, 30, 40, 2);
-      // sprintf(buffer, "Humidity: %.1f", hum);
-      // main_background_sprite.drawString(buffer, 30, 70, 2);
-      // sprintf(buffer, "Pressure: %.1f", press / 100.0);
-      // main_background_sprite.drawString(buffer, 30, 100, 2);
+      sprintf(buffer, "%.1f*C", temp);
+      main_background_sprite.drawString("T: ", 192, 35, 2);
 
-      main_background_sprite.pushImage(20, 35, 130, 130, gauge1_sm);
-      main_background_sprite.pushImage(160, 35, 130, 129, gauge2_sm);
+      if(temp >= 26){
+        main_background_sprite.setTextColor(TFT_RED, TFT_BLACK);
+      }
+      else if(temp >= 19){
+        main_background_sprite.setTextColor(TFT_GREEN, TFT_BLACK);
+      }
+      else{
+        main_background_sprite.setTextColor(TFT_BLUE, TFT_BLACK);
+      }
+
+      main_background_sprite.drawString(buffer, 220, 35, 2);
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+
+      sprintf(buffer, "%.1f%%", hum);
+      main_background_sprite.drawString("H: ", 192, 70, 2);
+
+      if(hum >= 70){
+        main_background_sprite.setTextColor(TFT_RED, TFT_BLACK);
+      }
+      else if(hum >= 40){
+        main_background_sprite.setTextColor(TFT_GREEN, TFT_BLACK);
+      }
+      else{
+        main_background_sprite.setTextColor(TFT_BLUE, TFT_BLACK);
+      }
+
+      main_background_sprite.drawString(buffer, 220, 70, 2);
+
+      Serial.println(press);
 
 
-      // main_background_sprite.pushImage(60, 35, 200, 199, temp_gauge);
-      // main_background_sprite.drawCircle(160, 155, 100, TFT_BLACK);
-      // main_background_sprite.drawCircle(160, 155, 99, TFT_BLACK);
-      // main_background_sprite.drawCircle(160, 155, 98, TFT_BLACK);
+      sprintf(buffer, "%.1f", press);
+      
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+
+      main_background_sprite.drawString("P:", 192, 100, 2);
+
+
+      if(press >= 1020){
+        main_background_sprite.setTextColor(TFT_YELLOW, TFT_BLACK);
+      }
+      else if(press >= 1005){
+        main_background_sprite.setTextColor(TFT_RED, TFT_BLACK);
+      }
+      else{
+        main_background_sprite.setTextColor(TFT_BLUE, TFT_BLACK);
+      }
+
+      main_background_sprite.drawString(buffer, 220, 100, 2);
+
+      main_background_sprite.pushImage(20, 35, 160, 160, gauge1_sm);
+
+      // double end_x, end_y;
+
+      if(press > BARO_MAX){
+        press = BARO_MAX;
+      }
+      else if(press < BARO_MIN){
+        press = BARO_MIN;
+      }
+
+      double delta = press - BARO_MIN;
+
+      Serial.println(delta);
+
+      double angle = BARO_MIN_ANGLE + (delta * BARO_STEP);
+
+      auto point = get_point_on_circle({BARO_X0, BARO_Y0}, BARO_RADIUS, angle);
+
+
+      // main_background_sprite.drawLine(BARO_X0, BARO_Y0, end_x + 20, end_y + 42, TFT_BLACK);
+      main_background_sprite.drawWideLine(BARO_X0, BARO_Y0, point.x, point.y , 2, TFT_BLACK);
+
+      main_background_sprite.drawSmoothCircle(100, 115, 81, TFT_BLACK, TFT_BLACK);
+      main_background_sprite.drawSmoothCircle(100, 115, 82, TFT_BLACK, TFT_BLACK);
+      main_background_sprite.drawSmoothCircle(100, 115, 83, TFT_BLACK, TFT_BLACK);
+      main_background_sprite.drawSmoothCircle(100, 115, 84, TFT_BLACK, TFT_BLACK);
+
+
+      main_background_sprite.drawLine(190, 28, 190, 190, TFT_WHITE);
+
 
       main_background_sprite.pushSprite(0, 0);
   }
