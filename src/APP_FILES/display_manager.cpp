@@ -27,11 +27,17 @@
 
 #include "GRAPHICS/temp_gauge.h"
 
+/* NAVIGATION BUTTONS START */
+
 #define MAX_LEFT_ARROW_X 50
 #define MIN_LEFT_ARROW_Y 190
 
 #define MIN_RIGHT_ARROW_X 260
 #define MIN_RIGHT_ARROW_Y 190
+
+/* NAVIGATION BUTTONS END */
+
+/* RADIO BUTTONS START */
 
 #define MIN_CHOICE_X 20
 #define MAX_CHOICE_X 70
@@ -41,6 +47,31 @@
 #define MAX_CHOICE_2_Y 148
 #define MIN_CHOICE_3_Y 150
 #define MAX_CHOICE_3_Y 188
+
+/* RADIO BUTTONS END */
+
+/* ALARM SCREEN START */
+
+#define MIN_INC_X 280
+#define MAX_INC_X 320
+#define MIN_INC_1_Y 80
+#define MAX_INC_1_Y 120
+#define MIN_INC_2_Y 125
+#define MAX_INC_2_Y 165
+
+#define MIN_DEC_X 230
+#define MAX_DEC_X 270
+#define MIN_DEC_1_Y 80
+#define MAX_DEC_1_Y 120
+#define MIN_DEC_2_Y 125
+#define MAX_DEC_2_Y 165
+
+#define MIN_SET_CLR_X 125
+#define MAX_SET_CLR_X 195
+#define MIN_SET_CLR_Y 200
+#define MAX_SET_CLR_Y 238
+
+/* ALARM SCREEN END */
 
 #define CHART_START_Y 175
 
@@ -307,6 +338,42 @@ const char config_strings[3][30]{
     auto& tmp = Logging::time_info;
     char buffer[100];
 
+    auto& cfg = system_configuration;
+
+      bool change = false;
+
+      if(INC_LO_TR_PRESSED & touch_flags){
+        if(cfg.alarm_low < 50 && (cfg.alarm_low + 1) < cfg.alarm_high){
+          ++cfg.alarm_low;
+          change = true;
+        }
+      }
+      else if(INC_HI_TR_PRESSED & touch_flags){
+        if(cfg.alarm_high < 60){
+          ++cfg.alarm_high;
+          change =  true;
+        }
+      }
+      else if(DEC_HI_TR_PRESSED & touch_flags){
+        if((cfg.alarm_high - 1) > cfg.alarm_low && cfg.alarm_high > -20){
+          --cfg.alarm_high;
+          change = true;
+        }
+      }
+      else if(DEC_LO_TR_PRESSED & touch_flags){
+        if(cfg.alarm_low > -30){
+          --cfg.alarm_low;
+          change = true;
+        }
+      }
+      else if(SET_ALM_ON_OFF_PRESSED & touch_flags){
+        cfg.alarm_set ^= 0x01;
+        change = true;
+      }
+
+      if(change){
+        update_system_config();
+      }
     sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
@@ -545,6 +612,21 @@ const char config_strings[3][30]{
       }
       else if(coords.x >= MIN_CHOICE_X && coords.x <= MAX_CHOICE_X && coords.y >= MIN_CHOICE_3_Y && coords.y <= MAX_CHOICE_3_Y){
         touch_flags |= CHOICE_3_PRESSED;
+      }
+      else if(coords.x >= MIN_INC_X && coords.x <= MAX_INC_X && coords.y >= MIN_INC_1_Y && coords.y <= MAX_INC_1_Y){
+        touch_flags |= INC_LO_TR_PRESSED;
+      }
+      else if(coords.x >= MIN_INC_X && coords.x <= MAX_INC_X && coords.y >= MIN_INC_2_Y && coords.y <= MAX_INC_2_Y){
+        touch_flags |= INC_HI_TR_PRESSED;
+      }
+      else if(coords.x >= MIN_DEC_X && coords.x <= MAX_DEC_X && coords.y >= MIN_DEC_1_Y && coords.y <= MAX_DEC_1_Y){
+        touch_flags |= DEC_LO_TR_PRESSED;
+      }
+      else if(coords.x >= MIN_DEC_X && coords.x <= MAX_DEC_X && coords.y >= MIN_DEC_2_Y && coords.y <= MAX_DEC_2_Y){
+        touch_flags |= DEC_HI_TR_PRESSED;
+      }
+      else if(coords.x >= MIN_SET_CLR_X && coords.x <= MAX_SET_CLR_X && coords.y >= MIN_SET_CLR_Y && coords.y <= MAX_SET_CLR_Y){
+        touch_flags |= SET_ALM_ON_OFF_PRESSED;
       }
 
       pressed = false;
