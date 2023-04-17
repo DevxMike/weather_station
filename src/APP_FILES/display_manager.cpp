@@ -138,7 +138,7 @@ const char config_strings[3][30]{
   " EVERY HOUR   ",
 };
 
-  int16_t get_height(float degrees){
+  int16_t get_height(float degrees){ // get height of bar on a chart
     if(degrees > 55){
       degrees = 55;
     }
@@ -148,15 +148,15 @@ const char config_strings[3][30]{
 
     return int16_t((abs(((-20 - degrees)* 16.5)/ 10.0)) );
   }
-  int16_t get_starting_point(int16_t height){
+  int16_t get_starting_point(int16_t height){ // get starting point of bar on a chart
     return CHART_START_Y - height;
   }
 
-  float get_sensor_reading(uint16_t sensor_voltage){
+  float get_sensor_reading(uint16_t sensor_voltage){ // linear function to get reading of air quality sensor
     return (0.000165 * sensor_voltage - 0.095);
   }
 
-  display_manager::screen_function display_manager::array_of_screens[6]{
+  display_manager::screen_function display_manager::array_of_screens[6]{ // function pointer array - screen drawing functions
     draw_temperature_screen,
     draw_temperature_graph_screen,
     draw_chart_config_screen,
@@ -166,12 +166,12 @@ const char config_strings[3][30]{
   };
 
 
-struct Point {
+struct Point { // point on barometer
     double x;
     double y;
 };
 
-struct Point get_point_on_circle(struct Point center, double radius, double angle_degrees) {
+struct Point get_point_on_circle(struct Point center, double radius, double angle_degrees) { // used to get point on barometer according to actual angle
     double angle_radians = angle_degrees * M_PI / 180.0;
     double x = center.x + radius * cos(angle_radians);
     double y = center.y + radius * sin(angle_radians);
@@ -188,11 +188,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       static unsigned long temperature_timer;
 
-      auto& tmp = Logging::time_info;
+      auto& tmp = Logging::time_info; // get time
 
       static bool init_sprite = false;
 
-      if(!init_sprite){
+      if(!init_sprite){ // init buffers 
 
         main_background_sprite.setColorDepth(8);
         main_background_sprite.createSprite(tft.width(), tft.height());
@@ -221,17 +221,17 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       main_background_sprite.fillSprite(TFT_BLACK);
 
-      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left); // draw arrows
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
       main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
       main_background_sprite.setTextSize(2);
-      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawString(buffer, 2, 0, 2); // draw time and date
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
 
-      if(millis() - temperature_timer > 1000){
+      if(millis() - temperature_timer > 1000){ // read every 1000ms
         temp = temp * 0.9 + 0.1 * display_manager::bme_ref.readTemperature();
         hum = hum * 0.9 + 0.1 * display_manager::bme_ref.readHumidity();
         press = press * 0.9 + 0.1 * (display_manager::bme_ref.readPressure() / 100);
@@ -239,7 +239,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         dust_voltage = dust_voltage * 0.85 + 0.15 * analog_measures::sensor_voltage;
         temperature_timer = millis();
       }
-
+      // draw readings
       sprintf(buffer, "%.1f*C", temp);
       main_background_sprite.drawString("T: ", 192, 35, 2);
 
@@ -326,18 +326,18 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         press = BARO_MIN;
       }
 
-      double delta = press - BARO_MIN;
+      double delta = press - BARO_MIN; // get delta between min baro and actual
 
 
-      double angle = BARO_MIN_ANGLE + (delta * BARO_STEP);
+      double angle = BARO_MIN_ANGLE + (delta * BARO_STEP); // get angle on baro
 
-      auto point = get_point_on_circle({BARO_X0, BARO_Y0}, BARO_RADIUS, angle);
+      auto point = get_point_on_circle({BARO_X0, BARO_Y0}, BARO_RADIUS, angle); // get end points baro
 
 
       // main_background_sprite.drawLine(BARO_X0, BARO_Y0, end_x + 20, end_y + 42, TFT_BLACK);
-      main_background_sprite.drawWideLine(BARO_X0, BARO_Y0, point.x, point.y , 2, TFT_BLACK);
+      main_background_sprite.drawWideLine(BARO_X0, BARO_Y0, point.x, point.y , 2, TFT_BLACK); // draw baro needle
 
-      main_background_sprite.drawSmoothCircle(100, 115, 81, TFT_BLACK, TFT_BLACK);
+      main_background_sprite.drawSmoothCircle(100, 115, 81, TFT_BLACK, TFT_BLACK); // smooth edges of baro
       main_background_sprite.drawSmoothCircle(100, 115, 82, TFT_BLACK, TFT_BLACK);
       main_background_sprite.drawSmoothCircle(100, 115, 83, TFT_BLACK, TFT_BLACK);
       main_background_sprite.drawSmoothCircle(100, 115, 84, TFT_BLACK, TFT_BLACK);
@@ -346,7 +346,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.drawLine(190, 28, 190, 190, TFT_WHITE);
 
 
-      main_background_sprite.pushSprite(0, 0);
+      main_background_sprite.pushSprite(0, 0); // swap buffers of display
   }
 
   void display_manager::draw_logging_screen(){
@@ -362,14 +362,14 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
-      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left); // draw arrows
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
       main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
       main_background_sprite.setTextSize(2);
-      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawString(buffer, 2, 0, 2); // draw date time
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       main_background_sprite.drawString("LOG CONFIG", 80, 35, 2);
 
@@ -388,11 +388,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         changed = true;
       }
 
-      if(changed){
+      if(changed){ // change config if button was pressed
         update_system_config();
       }
 
-      for(uint8_t i = 0; i < 3; ++i){
+      for(uint8_t i = 0; i < 3; ++i){ // draw buttons
         if(system_configuration.logging_config == i){
           main_background_sprite.pushImage(20, 70 + i * 40, 50, 38, active);  
           main_background_sprite.setTextColor(TFT_BLACK, TFT_GREEN);
@@ -405,7 +405,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         main_background_sprite.drawString(config_strings[i], 75, 72 + i * 40, 2);
       }
 
-      main_background_sprite.pushSprite(0, 0);
+      main_background_sprite.pushSprite(0, 0); // swap buffers
   }
 
   void display_manager::draw_temperature_graph_screen(){
@@ -421,38 +421,38 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
-      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left); // draw arrows
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
       main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
       main_background_sprite.setTextSize(2);
-      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawString(buffer, 2, 0, 2); // draw date time
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       // main_background_sprite.drawString("TEMPERATURE GRAPH", 30, 50, 2);
       main_background_sprite.pushImage(20, 36, 280, 160, chart);
       
-      auto values = Logging::chart_list.get_elements();
+      auto values = Logging::chart_list.get_elements(); // get pointer to first element
 
       int i = 0;
 
       main_background_sprite.setTextSize(1);
 
-      while(values != nullptr){
+      while(values != nullptr){ // draw chart
         auto height = get_height(values->temperature);
         auto start_y = get_starting_point(height);
 
         main_background_sprite.fillRect(48 + 27 * i, start_y, 25, height, TFT_GREEN);
         
-        auto hours = values->time_ago / 60;
+        auto hours = values->time_ago / 60; // get time for chart
         auto minutes = values->time_ago % 60;
 
         if(hours){
           sprintf(buffer, "%2dh", hours);
           main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 1);
           sprintf(buffer, "%2dm", minutes);
-          main_background_sprite.drawString(buffer, 49 + 27* i, 182, 1);
+          main_background_sprite.drawString(buffer, 49 + 27* i, 183, 1);
         }
         else{
           sprintf(buffer, "%2dm", minutes);
@@ -468,7 +468,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.pushSprite(0, 0);
   }
 
-  void display_manager::draw_chart_config_screen(){
+  void display_manager::draw_chart_config_screen(){ 
     auto& tmp = Logging::time_info;
     char buffer[100];
 
@@ -481,14 +481,14 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
-      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left); // draw arrows 
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
       main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
       main_background_sprite.setTextSize(2);
-      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawString(buffer, 2, 0, 2); //draw date time
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       main_background_sprite.drawString("CHART UPDATE", 70, 35, 2);
 
@@ -507,11 +507,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         changed = true;
       }
 
-      if(changed){
+      if(changed){ // change config if button was pressed
         update_system_config();
       }
 
-      for(uint8_t i = 0; i < 3; ++i){
+      for(uint8_t i = 0; i < 3; ++i){ // draw buttons
         if(system_configuration.graph_config == i){
           main_background_sprite.pushImage(20, 70 + i * 40, 50, 38, active);  
           main_background_sprite.setTextColor(TFT_BLACK, TFT_GREEN);
@@ -524,7 +524,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         main_background_sprite.drawString(config_strings[i], 75, 72 + i * 40, 2);
       }
 
-      main_background_sprite.pushSprite(0, 0);
+      main_background_sprite.pushSprite(0, 0); // swap buffers
   }
   
   void display_manager::draw_alarm_config_screen(){
@@ -564,7 +564,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         change = true;
       }
 
-      if(change){
+      if(change){ // change alarms, set/clear alarm if button was pressed
         update_system_config();
       }
     sprintf(buffer, 
@@ -577,15 +577,15 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
       left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
-      right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
+      right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right); // draw arrows
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
       main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
       main_background_sprite.setTextSize(2);
-      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawString(buffer, 2, 0, 2); // draw date time
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
-      main_background_sprite.drawString("ALM SETTINGS", 70, 35, 2);
+      main_background_sprite.drawString("ALM SETTINGS", 70, 35, 2); // draw tresholds and buttons
 
       sprintf(buffer, "LO TR: %i", system_configuration.alarm_low);
       
@@ -605,7 +605,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         !system_configuration.alarm_set? set_alm : clear_alm      
       );
 
-      main_background_sprite.pushSprite(0, 0);
+      main_background_sprite.pushSprite(0, 0); // swap buffer
   }
 
   void display_manager::draw_time_config_screen(){
@@ -622,17 +622,17 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
 
-      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left);
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left); // draw arrows
       right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
       left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
       right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
 
       main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
       main_background_sprite.setTextSize(2);
-      main_background_sprite.drawString(buffer, 2, 0, 2);
+      main_background_sprite.drawString(buffer, 2, 0, 2); // draw date time
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
 
-      if(INC_HOUR_PRESSED & touch_flags){
+      if(INC_HOUR_PRESSED & touch_flags){ // change displayed values if button was pressed
         static_time.tm_hour = (static_time.tm_hour + 1) % 24;
       }
       else if(INC_MIN_PRESSED & touch_flags){
@@ -690,17 +690,17 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
           static_time.tm_year -= 1;
         }
       } 
-      else if(SAVE_DATETIME_PRESSED & touch_flags){
+      else if(SAVE_DATETIME_PRESSED & touch_flags){ // set system values to displayed vaules
         time_manager::set_local_time(
           static_time.tm_year, static_time.tm_mon, static_time.tm_mday,
           static_time.tm_hour, static_time.tm_min, 0, 1
           );
       }
-      else if(GET_FROM_NTP_PRESSED & touch_flags){
+      else if(GET_FROM_NTP_PRESSED & touch_flags){ // get time from ntp
         time_manager::get_time_from_ntp();
       }
 
-      sprintf(buffer, "HOUR: %02i", static_time.tm_hour);
+      sprintf(buffer, "HOUR: %02i", static_time.tm_hour); // display values
       main_background_sprite.drawString(buffer, 20, 35, 2);
       
       sprintf(buffer, "MIN : %02i", static_time.tm_min);
@@ -715,11 +715,12 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       sprintf(buffer, "YEAR: %i", static_time.tm_year + 1900);
       main_background_sprite.drawString(buffer, 20, 155, 2);
 
-      for(int i = 0; i < 5; ++i){
+      for(int i = 0; i < 5; ++i){ // dislpay buttons
         main_background_sprite.pushImage(250, 40 + 30 * i, 25, 25, sm_decrement);
         main_background_sprite.pushImage(280, 40 + 30 * i, 25, 25, sm_increment);
       }
 
+      // dislpay buttons
       main_background_sprite.pushImage(60, 185, 100, 60, save_button);
       main_background_sprite.pushImage(160, 185, 100, 60, ntp_button);
 
@@ -734,11 +735,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
     static bool time_init = false;
 
-    touch_debouncer();
-    touch_manager();
+    touch_debouncer(); // check for touch
+    touch_manager(); // check if certain button was pressed
 
     // switching between the screens
-    if(LEFT_ARROW_PRESSED & touch_flags){
+    if(LEFT_ARROW_PRESSED & touch_flags){ // navigate left
       if(current_screen == 0){
         current_screen = 5;
       }
@@ -746,17 +747,17 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         current_screen = current_screen - 1;
       }
     }
-    else if(RIGHT_ARROW_PRESSED & touch_flags){
+    else if(RIGHT_ARROW_PRESSED & touch_flags){ // navigate right
       current_screen = (current_screen + 1) % 6;
     }
 
 
-    array_of_screens[current_screen]();
+    array_of_screens[current_screen](); // draw current screen
 
-    touch_flags = 0;
+    touch_flags = 0; // reset touch flags
     
     // draw_temperature_screen(tft);
-    switch(refresh_state){
+    switch(refresh_state){ // refresh screen every 500 ms
       case 0:
         refresh_state = 1;
         refresh_timer = millis();
@@ -770,7 +771,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       break;
     }
 
-    if(!time_init){
+    if(!time_init){ // start with time date set screen if time was not set properly
       // check if the time has been initialised
       if(!(system_flags & DEV_STATE_RTC_OK)){
         // start with date setting screen
@@ -803,18 +804,18 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
     int line = 0;
 
     
-    main_background_sprite.fillSprite(TFT_BLACK);
+    main_background_sprite.fillSprite(TFT_BLACK); // clear buffer with black color
 
-    message_list.append(message, status, add_status);
+    message_list.append(message, status, add_status); // create new list element
 
-    auto tmp = message_list.get_elements();
+    auto tmp = message_list.get_elements(); // get pointer to elements
 
     while(tmp != nullptr){
-      if(tmp->has_status){
+      if(tmp->has_status){ // draw message with status
         write_status(tmp->status, 0, line*18);
         main_background_sprite.drawString(tmp->line, 65, line*18, 1);
       }
-      else{
+      else{ // draw regular message
         main_background_sprite.drawString(tmp->line, 0, line * 18, 1);
       }
       ++line;
@@ -831,15 +832,15 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
     switch(debouncer_state){
       case 0:
-        if(tft.getTouch(&coords.x, &coords.y)){
+        if(tft.getTouch(&coords.x, &coords.y)){ // get touch and set timer to 30ms
           timer = millis();
           debouncer_state = 1;
         }
       break;
 
       case 1:
-        if(millis() - timer > 50){
-          if(tft.getTouch(&coords.x, &coords.y)){
+        if(millis() - timer > 30){
+          if(tft.getTouch(&coords.x, &coords.y)){ // if touch is still present set pressed to true
             debouncer_state = 2;
             pressed = true;
             // Serial.println(coords.x);
@@ -850,7 +851,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       break;
 
       case 2:
-        if(!tft.getTouch(&dummy_x, &dummy_y)){
+        if(!tft.getTouch(&dummy_x, &dummy_y)){ // wait till there is no touch
           debouncer_state = 0;
         }
       break;

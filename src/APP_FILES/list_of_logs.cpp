@@ -5,7 +5,7 @@ static const int16_t intervals[3]{
 };
 
 void list_of_logs::append(int16_t temperature, char interval){
-    if(head == nullptr){
+    if(head == nullptr){ // if list is empty
       temperature_log* tmp = new temperature_log;
       tmp->next = nullptr;
       tmp->temperature = temperature;
@@ -14,7 +14,7 @@ void list_of_logs::append(int16_t temperature, char interval){
 
       ++count;
     }
-    else if(count < max_count){
+    else if(count < max_count){ // append new element at the end if list is not full
       temperature_log* tmp = new temperature_log;
       tmp->next = nullptr;
 
@@ -30,7 +30,7 @@ void list_of_logs::append(int16_t temperature, char interval){
       ptr->next = tmp;
       ++count;
     }
-    else{
+    else{ // delete element at head and append element at the end of the list
       temperature_log* tmp = new temperature_log;
       tmp->next = nullptr;
 
@@ -52,12 +52,14 @@ void list_of_logs::append(int16_t temperature, char interval){
       temperature_log* ptr = head;
 
       while(ptr->next != nullptr){
+        // add time to element so it could be displayed at chart
         ptr->time_ago += intervals[interval];
         ptr = ptr->next;
       }
     }
   }
 
+  // free memory
   void list_of_logs::clear_list(){
     count = 0;
 
@@ -70,6 +72,7 @@ void list_of_logs::append(int16_t temperature, char interval){
     }
   }
 
+  // get pointer to first element
   temperature_log* list_of_logs::get_elements(){
     return head;
   }

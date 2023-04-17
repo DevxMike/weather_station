@@ -1,7 +1,7 @@
 #include "APP_FILES/list_of_communicates.h"
 
 void Linked_List::append(const char* message, bool status, bool add_status){
-    if(head == nullptr){
+    if(head == nullptr){ // create new item at head
       list_of_messages* tmp = new list_of_messages;
       tmp->next = nullptr;
       strcpy(tmp->line, message);
@@ -11,7 +11,7 @@ void Linked_List::append(const char* message, bool status, bool add_status){
 
       ++count;
     }
-    else if(count < max_count){
+    else if(count < max_count){ // append element at the end of the list
       list_of_messages* tmp = new list_of_messages;
       tmp->next = nullptr;
 
@@ -28,7 +28,7 @@ void Linked_List::append(const char* message, bool status, bool add_status){
       ptr->next = tmp;
       ++count;
     }
-    else{
+    else{ // delete first element and append new at the end
       list_of_messages* tmp = new list_of_messages;
       tmp->next = nullptr;
 
@@ -48,6 +48,7 @@ void Linked_List::append(const char* message, bool status, bool add_status){
     }
   }
 
+  // free memory
   void Linked_List::clear_list(){
     count = 0;
 
@@ -60,6 +61,7 @@ void Linked_List::append(const char* message, bool status, bool add_status){
     }
   }
 
+  // get pointer to first element of the list
   list_of_messages* Linked_List::get_elements(){
     return head;
   }

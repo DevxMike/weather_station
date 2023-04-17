@@ -1,5 +1,7 @@
 #include "APP_FILES/file_management.h"
 
+/* general functions START */
+
 void readFile(fs::FS &fs, const char * path){
     Serial.printf("Reading file: %s\n", path);
 
@@ -59,7 +61,9 @@ void deleteFile(fs::FS &fs, const char * path){
     }
 }
 
-void get_json_file(char* buffer, const char* fname){
+/* general functions END */
+
+void get_json_file(char* buffer, const char* fname){ // reads json file to buffer
   File file = SD.open(fname);
 
   unsigned i = 0;
@@ -80,23 +84,24 @@ void get_json_file(char* buffer, const char* fname){
 void read_system_config(){
     char buffer[6] = { 0 };
 
-    File f = SPIFFS.open(CONFIG_FILE, "rb");
+    File f = SPIFFS.open(CONFIG_FILE, "rb"); // open file for binary read
     
-    if(!f){
+    if(!f){ // check if file exists
         Serial.println("File does not exist");
         return;
     }
     
-    auto tmp = f.readBytes(buffer, 6);
+    auto tmp = f.readBytes(buffer, 6); // read 6 bytes of config
     
     Serial.println("Config succesfully read");
 
-    char debug_buff[100];
+    // char debug_buff[100];
 
-    sprintf(debug_buff, "%u, %u, %u, %u, %u, %u\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+    // sprintf(debug_buff, "%u, %u, %u, %u, %u, %u\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 
-    Serial.println(debug_buff);
-
+    // Serial.println(debug_buff);
+    
+    // set global struct 
     system_configuration.alarm_low = buffer[0];
     system_configuration.alarm_high = buffer[1];
     system_configuration.logging_config = buffer[2];
@@ -108,7 +113,7 @@ void read_system_config(){
 }
 
 void update_system_config(){
-    char buffer[6] = { 
+    char buffer[6] = { // create array of values to be written into config file
         system_configuration.alarm_low,
         system_configuration.alarm_high,
         system_configuration.logging_config,
@@ -117,16 +122,16 @@ void update_system_config(){
         system_configuration.alarm_set
     };
 
-    char debug_buff[100];
+    // char debug_buff[100];
 
-    sprintf(debug_buff, "%u, %u, %u, %u, %u, %u\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+    // sprintf(debug_buff, "%u, %u, %u, %u, %u, %u\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 
-    Serial.println(debug_buff);
+    // Serial.println(debug_buff);
 
-    File f = SPIFFS.open(CONFIG_FILE, "wb");
+    File f = SPIFFS.open(CONFIG_FILE, "wb"); // open for binary write
 
     if(f){
-        f.write((const unsigned char *)buffer, 6);
+        f.write((const unsigned char *)buffer, 6); // write config to file
 
         Serial.println("Config saved");
     }
@@ -135,10 +140,10 @@ void update_system_config(){
 }
 
 void init_system_config(){
-    if(SPIFFS.exists(CONFIG_FILE)){
-        read_system_config();
+    if(SPIFFS.exists(CONFIG_FILE)){ // if file exists
+        read_system_config(); // read
     }
-    else{
+    else{ // else create file and set it to default
         system_configuration.alarm_low = 17;
         system_configuration.alarm_high = 25;
         system_configuration.logging_config = 1;

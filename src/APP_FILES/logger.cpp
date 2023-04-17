@@ -24,7 +24,8 @@ void Logging::main(void* args){
         gettimeofday(&now_seconds, NULL);
 
 
-        if(get_old_time){
+        if(get_old_time){ 
+          // update old time (reference time)
           get_old_time = false;
           gettimeofday(&old_seconds, NULL);
              
@@ -40,7 +41,7 @@ void Logging::main(void* args){
                 time_info.tm_hour, time_info.tm_min,
                 temp, hum, press);
 
-            appendFile(SD, "/logs.csv", buffer);
+            appendFile(SD, "/logs.csv", buffer); // print logs into SD 
 
         //   xSemaphoreGive(bme_semaphore);
         }
@@ -53,7 +54,7 @@ void Logging::main(void* args){
         if(millis() - timer >= 1000){
           logger_state = 0;
 
-          auto tmp = time_diff(old_seconds, now_seconds);
+          auto tmp = time_diff(old_seconds, now_seconds); // check difference between reference time and now
 
           switch(system_configuration.logging_config){
             case 0:
@@ -93,6 +94,7 @@ void Logging::main(void* args){
 
 
         if(get_old_time){
+          // get old time for reference
           get_old_time = false;
           gettimeofday(&old_seconds, NULL);
              
@@ -101,7 +103,7 @@ void Logging::main(void* args){
 
             auto temp = bme_ref.readTemperature();
 
-            chart_list.append(temp, system_configuration.graph_config);
+            chart_list.append(temp, system_configuration.graph_config); // create new item for chart
         //   xSemaphoreGive(bme_semaphore);
         }
 
@@ -113,7 +115,7 @@ void Logging::main(void* args){
         if(millis() - timer >= 1000){
           logger_state = 0;
 
-          auto tmp = time_diff(old_seconds, now_seconds);
+          auto tmp = time_diff(old_seconds, now_seconds); // check difference between reference time and now
 
           switch(system_configuration.graph_config){
             case 0:
