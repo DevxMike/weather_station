@@ -3,6 +3,7 @@
 #include "APP_FILES/main.h"
 #include "APP_FILES/file_management.h"
 #include "APP_FILES/time_manager.h"
+#include "APP_FILES/analog.h"
 
 #include "GRAPHICS/arrow_left.h"
 #include "GRAPHICS/arrow_right.h"
@@ -151,6 +152,10 @@ const char config_strings[3][30]{
     return CHART_START_Y - height;
   }
 
+  float get_sensor_reading(uint16_t sensor_voltage){
+    return (0.000165 * sensor_voltage - 0.095);
+  }
+
   display_manager::screen_function display_manager::array_of_screens[6]{
     draw_temperature_screen,
     draw_temperature_graph_screen,
@@ -178,6 +183,8 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       static float temp = display_manager::bme_ref.readTemperature();
       static float hum = display_manager::bme_ref.readHumidity();
       static float press = display_manager::bme_ref.readPressure() / 100;
+      static float dust_voltage = get_sensor_reading(analog_measures::sensor_voltage);
+      static uint16_t voltage = analog_measures::input_voltage;
 
       static unsigned long temperature_timer;
 
@@ -228,6 +235,8 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         temp = temp * 0.9 + 0.1 * display_manager::bme_ref.readTemperature();
         hum = hum * 0.9 + 0.1 * display_manager::bme_ref.readHumidity();
         press = press * 0.9 + 0.1 * (display_manager::bme_ref.readPressure() / 100);
+        voltage = voltage * 0.9 + 0.1 * analog_measures::input_voltage;
+        dust_voltage = dust_voltage * 0.85 + 0.15 * analog_measures::sensor_voltage;
         temperature_timer = millis();
       }
 
@@ -262,9 +271,6 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       main_background_sprite.drawString(buffer, 220, 70, 2);
 
-      Serial.println(press);
-
-
       sprintf(buffer, "%.1f", press);
       
       main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -284,7 +290,32 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       main_background_sprite.drawString(buffer, 220, 100, 2);
 
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+
+      main_background_sprite.drawString("Q:", 192, 130, 2);
+      main_background_sprite.drawString("V:", 192, 160, 2);
+
+      main_background_sprite.drawString(buffer, 220, 130, 2);
+
+      sprintf(buffer, "%.2fV", voltage / 1000.0);
+      main_background_sprite.drawString(buffer, 220, 160, 2);
+
       main_background_sprite.pushImage(20, 35, 160, 160, gauge1_sm);
+
+      auto dust_percent = get_sensor_reading(dust_voltage);
+
+      if(dust_percent >= 0.5){
+        main_background_sprite.setTextColor(TFT_RED, TFT_BLACK);
+      }
+      else if(dust_percent >= 0.3){
+        main_background_sprite.setTextColor(TFT_YELLOW, TFT_BLACK);
+      }
+      else{
+        main_background_sprite.setTextColor(TFT_GREEN, TFT_BLACK);
+      }
+
+      sprintf(buffer, "%.2fmg", dust_percent);
+      main_background_sprite.drawString(buffer, 220, 130, 2);
 
       // double end_x, end_y;
 
@@ -297,7 +328,6 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       double delta = press - BARO_MIN;
 
-      Serial.println(delta);
 
       double angle = BARO_MIN_ANGLE + (delta * BARO_STEP);
 
@@ -794,8 +824,8 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
           if(tft.getTouch(&coords.x, &coords.y)){
             debouncer_state = 2;
             pressed = true;
-            Serial.println(coords.x);
-            Serial.println(coords.y);
+            // Serial.println(coords.x);
+            // Serial.println(coords.y);
           }
         }
 
@@ -863,11 +893,9 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         touch_flags |= INC_MIN_PRESSED;
       }
       if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_3_Y && coords.y <= MAX_SM_INC_3_Y){
-        Serial.println("Hello");
         touch_flags |= INC_DAY_PRESSED;
       }
       if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_4_Y && coords.y <= MAX_SM_INC_4_Y){
-        Serial.println("Hello");
         touch_flags |= INC_MON_PRESSED;
       }
       if(coords.x >= MIN_SM_INC_X && coords.x <= MAX_SM_INC_X && coords.y >= MIN_SM_INC_5_Y && coords.y <= MAX_SM_INC_5_Y){

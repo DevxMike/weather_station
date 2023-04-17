@@ -5,6 +5,7 @@
 #include "APP_FILES/logger.h"
 #include "APP_FILES/bme_manager.h"
 #include "APP_FILES/time_manager.h"
+#include "APP_FILES/analog.h"
 
 
 static const char *root_ca PROGMEM = R"EOF(
@@ -113,6 +114,9 @@ TFT_eSPI display_manager::tft = TFT_eSPI();
 Linked_List display_manager::message_list;
 list_of_logs Logging::chart_list;
 
+uint16_t analog_measures::input_voltage{ 0 };
+uint16_t analog_measures::sensor_voltage{ 0 };
+
 TFT_eSprite display_manager::main_background_sprite = TFT_eSprite(&display_manager::tft);
 TFT_eSprite display_manager::left_arrow_sprite = TFT_eSprite(&display_manager::tft);
 TFT_eSprite display_manager::right_arrow_sprite = TFT_eSprite(&display_manager::tft);
@@ -202,7 +206,7 @@ void setup(){
     }
 
   display_manager::append_and_print_start_window("Initializing ADC");
-  //LOGIC TODO
+  init_pwm();
 
   display_manager::append_and_print_start_window("Initializing WiFi");
   WiFi.mode(WIFI_STA); //Client
@@ -306,21 +310,10 @@ void printValues() {
 }
 
 void loop() {
-  // printValues();
-  static unsigned long timer = 0;
-  static unsigned long display_timer = 0;
-  static char buffer[50];
+  analog_measures::main();
 
   Logging::main(NULL);
   Logging::log_for_chart(NULL);
 
   display_manager::main();
-
-  // if(millis() - timer >= 1000){
-  //   const auto& tmp = Logging::time_info;
-
-  //   sprintf(buffer, "%02d:%02d:%02d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec);
-  //   Serial.println(buffer);
-  //   timer = millis();
-  // }
 }
