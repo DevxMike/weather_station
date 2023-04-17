@@ -437,11 +437,29 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       int i = 0;
 
+      main_background_sprite.setTextSize(1);
+
       while(values != nullptr){
         auto height = get_height(values->temperature);
         auto start_y = get_starting_point(height);
 
-        main_background_sprite.fillRect(48 + 12 * i, start_y, 10, height, TFT_GREEN);
+        main_background_sprite.fillRect(48 + 27 * i, start_y, 25, height, TFT_GREEN);
+        
+        auto hours = values->time_ago / 60;
+        auto minutes = values->time_ago % 60;
+
+        if(hours){
+          sprintf(buffer, "%2dh", hours);
+          main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 2);
+          sprintf(buffer, "%2dm", minutes);
+          main_background_sprite.drawString(buffer, 49 + 27* i, 180, 2);
+        }
+        else{
+          sprintf(buffer, "%2dm", minutes);
+          main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 2);
+        }
+
+        Serial.println(values->time_ago);
 
         ++i;
         values = values->next;
@@ -806,7 +824,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
     main_background_sprite.pushSprite(0, 0);
   }
 
-  void display_manager::touch_debouncer(){
+  void display_manager::touch_debouncer(){ 
     static uint8_t debouncer_state = 0;
     static unsigned long timer = 0;
     uint16_t dummy_x, dummy_y;

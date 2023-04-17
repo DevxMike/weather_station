@@ -25,7 +25,7 @@ public:
     clear_list();
   }
 
-  void append(int16_t temperature, uint8_t interval);
+  void append(int16_t temperature, char interval);
 
   void clear_list();
 

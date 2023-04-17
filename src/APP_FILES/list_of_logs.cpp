@@ -4,7 +4,7 @@ static const int16_t intervals[3]{
     10, 30, 60
 };
 
-void list_of_logs::append(int16_t temperature, uint8_t interval){
+void list_of_logs::append(int16_t temperature, char interval){
     if(head == nullptr){
       temperature_log* tmp = new temperature_log;
       tmp->next = nullptr;
@@ -24,7 +24,6 @@ void list_of_logs::append(int16_t temperature, uint8_t interval){
       temperature_log* ptr = head;
 
       while(ptr->next != nullptr){
-        ptr->time_ago -= intervals[interval];
         ptr = ptr->next;
       }
 
@@ -43,11 +42,19 @@ void list_of_logs::append(int16_t temperature, uint8_t interval){
       head = ptr;
 
       while(ptr->next != nullptr){
-        ptr->time_ago -= intervals[interval];
         ptr = ptr->next;
       }
 
       ptr->next = tmp;
+    }
+
+    if(head != nullptr){
+      temperature_log* ptr = head;
+
+      while(ptr->next != nullptr){
+        ptr->time_ago += intervals[interval];
+        ptr = ptr->next;
+      }
     }
   }
 
