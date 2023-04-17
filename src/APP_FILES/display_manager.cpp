@@ -123,7 +123,7 @@
 #define BARO_X0 100
 #define BARO_Y0 115
 #define BARO_RADIUS 72
-#define BARO_STEP 4.2
+#define BARO_STEP 4.18
 
 #define BARO_MIN 978
 #define BARO_MAX 1050.5
@@ -231,11 +231,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.drawString(buffer, 2, 0, 2);
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
 
-      if(millis() - temperature_timer > 3000){
+      if(millis() - temperature_timer > 1000){
         temp = temp * 0.9 + 0.1 * display_manager::bme_ref.readTemperature();
         hum = hum * 0.9 + 0.1 * display_manager::bme_ref.readHumidity();
         press = press * 0.9 + 0.1 * (display_manager::bme_ref.readPressure() / 100);
-        voltage = voltage * 0.9 + 0.1 * analog_measures::input_voltage;
+        voltage = voltage * 0.7 + 0.3 * analog_measures::input_voltage;
         dust_voltage = dust_voltage * 0.85 + 0.15 * analog_measures::sensor_voltage;
         temperature_timer = millis();
       }
@@ -450,13 +450,13 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
         if(hours){
           sprintf(buffer, "%2dh", hours);
-          main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 2);
+          main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 1);
           sprintf(buffer, "%2dm", minutes);
-          main_background_sprite.drawString(buffer, 49 + 27* i, 180, 2);
+          main_background_sprite.drawString(buffer, 49 + 27* i, 182, 1);
         }
         else{
           sprintf(buffer, "%2dm", minutes);
-          main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 2);
+          main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 1);
         }
 
         Serial.println(values->time_ago);
