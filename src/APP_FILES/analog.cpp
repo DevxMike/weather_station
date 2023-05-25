@@ -1,4 +1,5 @@
 #include "APP_FILES/analog.h"
+#include "APP_FILES/multi_core.h"
 
 #define VIN_MEASURE_PIN 34
 #define DUST_MEASURE_PIN 35
@@ -18,28 +19,18 @@ void init_pwm(){
     ledcWrite(DUST_PWM_CHANNEL, 65535 * DUST_PWM_RESOLUTION);
 }
 
-void analog_measures::main(){
-    static uint8_t analog_state = 0;
-    static unsigned long analog_timer;
+void analog_measures::main(void* args){
+    while(1){
+        xSemaphoreTake(analog_mutex, portMAX_DELAY);
 
-    switch(analog_state){
-        case 0:
-            analog_timer = millis();
-            analog_state = 1;
-        break;
+        uint16_t raw_dust = analogRead(DUST_MEASURE_PIN); // read analog values
+        uint16_t raw_vin = analogRead(VIN_MEASURE_PIN);
+        // 3V3 * ratio * 1000mV * 2 (measured on 2 by 2 voltage divider)
+        input_voltage = (3.3 * raw_vin / ADC_MAX) * 2000; // representation in mV
+        sensor_voltage = (3.3 * raw_dust / ADC_MAX) * 2000; // representation in mV
 
-        case 1:
-            if(millis() - analog_timer > 100){
-                uint16_t raw_dust = analogRead(DUST_MEASURE_PIN); // read analog values
-                uint16_t raw_vin = analogRead(VIN_MEASURE_PIN);
-                // 3V3 * ratio * 1000mV * 2 (measured on 2 by 2 voltage divider)
-                input_voltage = (3.3 * raw_vin / ADC_MAX) * 2000; // representation in mV
-                sensor_voltage = (3.3 * raw_dust / ADC_MAX) * 2000; // representation in mV
+        xSemaphoreGive(analog_mutex);
 
-                Serial.println(input_voltage);
-
-                analog_state = 0;
-            }
-        break;
+        task_delay(50);
     }
 }

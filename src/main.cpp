@@ -6,7 +6,7 @@
 #include "APP_FILES/bme_manager.h"
 #include "APP_FILES/time_manager.h"
 #include "APP_FILES/analog.h"
-
+#include "APP_FILES/multi_core.h"
 
 static const char *root_ca PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -44,6 +44,13 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
 uint32_t system_flags = 0;
 volatile config_info system_configuration{ 0 };
+
+SemaphoreHandle_t analog_mutex;
+SemaphoreHandle_t spiffs_mutex;
+SemaphoreHandle_t bme_mutex;
+SemaphoreHandle_t chart_mutex;
+SemaphoreHandle_t time_sem_start;
+SemaphoreHandle_t time_sem_end;
 
 void touch_calibrate(TFT_eSPI& tft)
 {
@@ -130,8 +137,6 @@ bool display_manager::pressed{false};
 press_point display_manager::coords;
 uint32_t display_manager::touch_flags{ 0 };
 
-SemaphoreHandle_t bme_semaphore {NULL};
-
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
@@ -154,7 +159,12 @@ unsigned long delayTime;
 void setup(){
   Serial.begin(115200);
   
-  // bme_semaphore = xSemaphoreCreateMutex();
+  analog_mutex = xSemaphoreCreateMutex();
+  spiffs_mutex = xSemaphoreCreateMutex();
+  bme_mutex = xSemaphoreCreateMutex();;
+  chart_mutex = xSemaphoreCreateMutex();
+  time_sem_start = xSemaphoreCreateBinary();
+  time_sem_end = xSemaphoreCreateBinary();
 
   display_manager::tft.init();
   display_manager::tft.setRotation(1);
@@ -291,29 +301,44 @@ void setup(){
 
   delay(3000);
   display_manager::message_list.clear_list();
-}
 
-void printValues() {
-  Serial.print("Temperature = ");
-  Serial.print(bme.readTemperature());
-  Serial.println(" *C");
+  xTaskCreate(
+    analog_measures::main,                 // Function to run for Task 1
+    "Analog task",              // Name of Task 1
+    1000,                 // Stack size of Task 1
+    NULL,                  // Task 1 parameters
+    1,                     // Priority of Task 1
+    NULL          // Task handle for Task 1
+  );
+
+  xTaskCreate(
+    Logging::main,                 // Function to run for Task 1
+    "Logger task",              // Name of Task 1
+    1000,                 // Stack size of Task 1
+    NULL,                  // Task 1 parameters
+    1,                     // Priority of Task 1
+    NULL           // Task handle for Task 1
+  );
+
+  xTaskCreate(
+    Logging::log_for_chart,                 // Function to run for Task 1
+    "Chart logger task",              // Name of Task 1
+    1000,                 // Stack size of Task 1
+    NULL,                  // Task 1 parameters
+    1,                     // Priority of Task 1
+    NULL          // Task handle for Task 1
+  );
+
+  xTaskCreate(
+    display_manager::main,                 // Function to run for Task 1
+    "Display task",              // Name of Task 1
+    5000,                 // Stack size of Task 1
+    NULL,                  // Task 1 parameters
+    1,                     // Priority of Task 1
+    NULL           // Task handle for Task 1
+  );
   
-  Serial.print("Pressure = ");
-  Serial.print(bme.readPressure() / 100.0F);
-  Serial.println(" hPa");
-
-  Serial.print("Humidity = ");
-  Serial.print(bme.readHumidity());
-  Serial.println(" %");
-
-  Serial.println();
 }
 
 void loop() {
-  analog_measures::main();
-
-  Logging::main(NULL);
-  Logging::log_for_chart(NULL);
-
-  display_manager::main();
 }

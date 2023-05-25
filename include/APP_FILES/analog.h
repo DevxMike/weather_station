@@ -9,7 +9,7 @@ class analog_measures{
 public:
     static uint16_t input_voltage;
     static uint16_t sensor_voltage;
-    static void main();
+    static void main(void* args);
 };
 
 #endif

@@ -50,7 +50,7 @@ public:
   static Adafruit_BME280& bme_ref;
   static press_point coords;
 
-  static void main();
+  static void main(void* args);
   static void append_and_print_start_window(const char* message, bool status = true, bool add_status = false);
 
 private:

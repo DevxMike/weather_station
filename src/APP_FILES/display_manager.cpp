@@ -5,6 +5,8 @@
 #include "APP_FILES/time_manager.h"
 #include "APP_FILES/analog.h"
 
+#include "APP_FILES/multi_core.h"
+
 #include "GRAPHICS/arrow_left.h"
 #include "GRAPHICS/arrow_right.h"
 #include "GRAPHICS/background.h"
@@ -180,9 +182,14 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 }
   void display_manager::draw_temperature_screen(){
       char buffer[100];
+      xSemaphoreTake(bme_mutex, portMAX_DELAY);
+
       static float temp = display_manager::bme_ref.readTemperature();
       static float hum = display_manager::bme_ref.readHumidity();
       static float press = display_manager::bme_ref.readPressure() / 100;
+      
+      xSemaphoreGive(bme_mutex);
+
       static float dust_voltage = get_sensor_reading(analog_measures::sensor_voltage);
       static uint16_t voltage = analog_measures::input_voltage;
 
@@ -232,9 +239,14 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
 
       if(millis() - temperature_timer > 1000){ // read every 1000ms
+        xSemaphoreTake(bme_mutex, portMAX_DELAY);
+
         temp = temp * 0.9 + 0.1 * display_manager::bme_ref.readTemperature();
         hum = hum * 0.9 + 0.1 * display_manager::bme_ref.readHumidity();
         press = press * 0.9 + 0.1 * (display_manager::bme_ref.readPressure() / 100);
+
+        xSemaphoreGive(bme_mutex);
+
         voltage = voltage * 0.7 + 0.3 * analog_measures::input_voltage;
         dust_voltage = dust_voltage * 0.85 + 0.15 * analog_measures::sensor_voltage;
         temperature_timer = millis();
@@ -389,7 +401,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       }
 
       if(changed){ // change config if button was pressed
+        xSemaphoreTake(spiffs_mutex, portMAX_DELAY);
+
         update_system_config();
+
+        xSemaphoreGive(spiffs_mutex);
       }
 
       for(uint8_t i = 0; i < 3; ++i){ // draw buttons
@@ -432,6 +448,8 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
       // main_background_sprite.drawString("TEMPERATURE GRAPH", 30, 50, 2);
       main_background_sprite.pushImage(20, 36, 280, 160, chart);
+
+      xSemaphoreTake(chart_mutex, portMAX_DELAY);
       
       auto values = Logging::chart_list.get_elements(); // get pointer to first element
 
@@ -464,6 +482,8 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         ++i;
         values = values->next;
       }
+
+      xSemaphoreGive(chart_mutex);
 
       main_background_sprite.pushSprite(0, 0);
   }
@@ -508,7 +528,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       }
 
       if(changed){ // change config if button was pressed
+        xSemaphoreTake(spiffs_mutex, portMAX_DELAY);
+
         update_system_config();
+
+        xSemaphoreGive(spiffs_mutex);
       }
 
       for(uint8_t i = 0; i < 3; ++i){ // draw buttons
@@ -565,7 +589,11 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       }
 
       if(change){ // change alarms, set/clear alarm if button was pressed
+        xSemaphoreTake(spiffs_mutex, portMAX_DELAY);
+
         update_system_config();
+
+        xSemaphoreGive(spiffs_mutex);
       }
     sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
@@ -728,65 +756,54 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.pushSprite(0, 0);
   }
   
-  void display_manager::main(){ 
+  void display_manager::main(void* args){ 
     static uint8_t refresh_state = 0;
     static unsigned long refresh_timer = 0;
     static uint8_t current_screen = 0;
 
     static bool time_init = false;
 
-    touch_debouncer(); // check for touch
-    touch_manager(); // check if certain button was pressed
+    while(1){
+      touch_debouncer(); // check for touch
+      touch_manager(); // check if certain button was pressed
 
-    // switching between the screens
-    if(LEFT_ARROW_PRESSED & touch_flags){ // navigate left
-      if(current_screen == 0){
-        current_screen = 5;
-      }
-      else{
-        current_screen = current_screen - 1;
-      }
-    }
-    else if(RIGHT_ARROW_PRESSED & touch_flags){ // navigate right
-      current_screen = (current_screen + 1) % 6;
-    }
-
-
-    array_of_screens[current_screen](); // draw current screen
-
-    touch_flags = 0; // reset touch flags
-    
-    // draw_temperature_screen(tft);
-    switch(refresh_state){ // refresh screen every 500 ms
-      case 0:
-        refresh_state = 1;
-        refresh_timer = millis();
-      break;
-
-      case 1:
-        if(millis() - refresh_timer >= 500){
-          refresh_state = 0;
-          // Serial.println(current_screen);
+      // switching between the screens
+      if(LEFT_ARROW_PRESSED & touch_flags){ // navigate left
+        if(current_screen == 0){
+          current_screen = 5;
         }
-      break;
-    }
+        else{
+          current_screen = current_screen - 1;
+        }
+      }
+      else if(RIGHT_ARROW_PRESSED & touch_flags){ // navigate right
+        current_screen = (current_screen + 1) % 6;
+      }
 
-    if(!time_init){ // start with time date set screen if time was not set properly
-      // check if the time has been initialised
-      if(!(system_flags & DEV_STATE_RTC_OK)){
-        // start with date setting screen
-        current_screen = 5;
-      } 
-      time_init = true;
-    }
-    // if(pressed){
-    //   Serial.print(coords.x);
-    //   Serial.print(", ");
-    //   Serial.print(coords.y);
-    //   Serial.print("\n\r");
 
-    //   pressed = false;
-    // }
+      array_of_screens[current_screen](); // draw current screen
+
+      touch_flags = 0; // reset touch flags
+      
+      // draw_temperature_screen(tft);
+
+      if(!time_init){ // start with time date set screen if time was not set properly
+        // check if the time has been initialised
+        if(!(system_flags & DEV_STATE_RTC_OK)){
+          // start with date setting screen
+          current_screen = 5;
+        } 
+        time_init = true;
+      }
+      // if(pressed){
+      //   Serial.print(coords.x);
+      //   Serial.print(", ");
+      //   Serial.print(coords.y);
+      //   Serial.print("\n\r");
+      //   pressed = false;
+      // }
+      task_delay(100);
+    }
   }
 
   void display_manager::append_and_print_start_window(const char* message, bool status, bool add_status){

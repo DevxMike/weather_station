@@ -1,5 +1,6 @@
 #include "APP_FILES/logger.h"
 #include "APP_FILES/bme_manager.h"
+#include "APP_FILES/multi_core.h"
 
 char buffer[100];
 
@@ -18,6 +19,7 @@ void Logging::main(void* args){
     static struct timeval now_seconds;
     static bool get_old_time = true;
     
+    while(1){
       switch(logger_state){
         case 0:
         getLocalTime(&time_info);
@@ -31,10 +33,13 @@ void Logging::main(void* args){
              
 
         //   xSemaphoreTake(bme_semaphore, portMAX_DELAY);
+            xSemaphoreTake(bme_mutex, portMAX_DELAY);
 
             auto temp = bme_ref.readTemperature();
             auto hum = bme_ref.readHumidity();
             auto press = bme_ref.readPressure();
+
+            xSemaphoreGive(bme_mutex);
 
             sprintf(buffer, "%02d/%02d/%02d-%02d:%02d; %.2f; %.2f; %.2f\n", 
                 time_info.tm_mday, time_info.tm_mon + 1, time_info.tm_year + 1900,
@@ -51,7 +56,7 @@ void Logging::main(void* args){
         break;
 
         case 1:
-        if(millis() - timer >= 1000){
+        if(millis() - timer >= 10){
           logger_state = 0;
 
           auto tmp = time_diff(old_seconds, now_seconds); // check difference between reference time and now
@@ -78,6 +83,8 @@ void Logging::main(void* args){
         }
         break;
       }
+      task_delay(100);
+    }
   }
 
   void Logging::log_for_chart(void* args){
@@ -87,6 +94,7 @@ void Logging::main(void* args){
     static struct timeval now_seconds;
     static bool get_old_time = true;
     
+    while(1){
       switch(logger_state){
         case 0:
         getLocalTime(&time_info);
@@ -100,10 +108,17 @@ void Logging::main(void* args){
              
 
         //   xSemaphoreTake(bme_semaphore, portMAX_DELAY);
+            xSemaphoreTake(bme_mutex, portMAX_DELAY);
 
             auto temp = bme_ref.readTemperature();
 
+            xSemaphoreGive(bme_mutex);
+            
+            xSemaphoreTake(chart_mutex, portMAX_DELAY);
+
             chart_list.append(temp, system_configuration.graph_config); // create new item for chart
+
+            xSemaphoreGive(chart_mutex);
         //   xSemaphoreGive(bme_semaphore);
         }
 
@@ -112,7 +127,7 @@ void Logging::main(void* args){
         break;
 
         case 1:
-        if(millis() - timer >= 1000){
+        if(millis() - timer >= 10){
           logger_state = 0;
 
           auto tmp = time_diff(old_seconds, now_seconds); // check difference between reference time and now
@@ -139,4 +154,6 @@ void Logging::main(void* args){
         }
         break;
       }
+      task_delay(100);
+    }
   }
