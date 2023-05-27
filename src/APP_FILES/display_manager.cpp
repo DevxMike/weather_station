@@ -123,7 +123,7 @@
 #define BARO_X0 100
 #define BARO_Y0 115
 #define BARO_RADIUS 72
-#define BARO_STEP 4.18
+#define BARO_STEP 4.15
 
 #define BARO_MIN 978
 #define BARO_MAX 1050.5
@@ -153,7 +153,10 @@ const char config_strings[3][30]{
   }
 
   float get_sensor_reading(uint16_t sensor_voltage){ // linear function to get reading of air quality sensor
-    return (0.000165 * sensor_voltage - 0.095);
+    auto tmp = (0.000165 * sensor_voltage - 0.095);
+    if(tmp < 0) tmp = 0;
+
+    return tmp;
   }
 
   display_manager::screen_function display_manager::array_of_screens[6]{ // function pointer array - screen drawing functions
@@ -459,7 +462,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
           main_background_sprite.drawString(buffer, 49 + 27 * i, 175, 1);
         }
 
-        Serial.println(values->time_ago);
+        //Serial.println(values->time_ago);
 
         ++i;
         values = values->next;

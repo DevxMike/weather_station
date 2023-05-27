@@ -36,6 +36,8 @@ struct press_point{
   uint16_t y;
 };
 
+float get_sensor_reading(uint16_t sensor_voltage);
+
 class display_manager{
 public:
   static TFT_eSPI tft;

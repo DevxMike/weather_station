@@ -80,11 +80,10 @@ TFT_eSPI display_manager::tft = TFT_eSPI();
 Linked_List display_manager::message_list;
 list_of_logs Logging::chart_list;
 
-WiFiClientSecure comm::espClient;
-PubSubClient comm::mqttClient(comm::espClient);
-
 uint16_t analog_measures::input_voltage{ 0 };
 uint16_t analog_measures::sensor_voltage{ 0 };
+
+bool connected{ false };
 
 TFT_eSprite display_manager::main_background_sprite = TFT_eSprite(&display_manager::tft);
 TFT_eSprite display_manager::left_arrow_sprite = TFT_eSprite(&display_manager::tft);
@@ -98,6 +97,7 @@ Adafruit_BME280& display_manager::bme_ref{bme};
 bool display_manager::pressed{false};
 press_point display_manager::coords;
 uint32_t display_manager::touch_flags{ 0 };
+message_stack comm::messages;
 
 SemaphoreHandle_t bme_semaphore {NULL};
 
@@ -235,10 +235,9 @@ void setup(){
         display_manager::append_and_print_start_window("Reaching MQTT Broker");
 
         
-        if(mqttClient.connect("Weather", mqtt_user_name, mqtt_password)){
+        if(comm::connect()){
           display_manager::append_and_print_start_window("Connected to broker", true, true);
-          system_flags |= DEV_STATE_MQTT_OK;
-          // mqttClient.publish("esp32/test", "System initialized properly.");
+          comm::send_message("ws_test", "connected");
         }
         else{
           display_manager::append_and_print_start_window("Broker error", false, true);
@@ -281,4 +280,6 @@ void loop() {
   Logging::log_for_chart(NULL);
 
   display_manager::main();
+
+  comm::main();
 }

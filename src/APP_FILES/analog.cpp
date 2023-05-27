@@ -36,7 +36,7 @@ void analog_measures::main(){
                 input_voltage = (3.3 * raw_vin / ADC_MAX) * 2000; // representation in mV
                 sensor_voltage = (3.3 * raw_dust / ADC_MAX) * 2000; // representation in mV
 
-                Serial.println(input_voltage);
+                //Serial.println(input_voltage);
 
                 analog_state = 0;
             }

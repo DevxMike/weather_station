@@ -1,6 +1,8 @@
 #include "APP_FILES/logger.h"
 #include "APP_FILES/bme_manager.h"
-
+#include "APP_FILES/comm.h"
+#include "APP_FILES/analog.h"
+#include "APP_FILES/display_manager.h"
 char buffer[100];
 
 long time_diff(const struct timeval& old_time, const struct timeval& new_time){
@@ -12,12 +14,15 @@ long time_diff(const struct timeval& old_time, const struct timeval& new_time){
 }
 
 void Logging::main(void* args){
+    StaticJsonBuffer<400> JSONBuffer;  
     static uint8_t logger_state = 0;
     static unsigned long timer = 0;
     static struct timeval old_seconds;
     static struct timeval now_seconds;
     static bool get_old_time = true;
     
+    // Serial.println(char(system_configuration.logging_config + '0'));
+
       switch(logger_state){
         case 0:
         getLocalTime(&time_info);
@@ -42,6 +47,23 @@ void Logging::main(void* args){
                 temp, hum, press);
 
             appendFile(SD, "/logs.csv", buffer); // print logs into SD 
+            JsonObject& jsonObject = JSONBuffer.createObject();
+            jsonObject["device_id"] = 1;
+            jsonObject["temperature"] = temp;
+            jsonObject["pressure"] = press;
+            jsonObject["humidity"] = hum;
+            jsonObject["air_quality"] = get_sensor_reading(analog_measures::sensor_voltage);
+
+            sprintf(buffer, "%02d-%02d-%02d %02d:%02d:%02d", 
+                 time_info.tm_year + 1900, time_info.tm_mon + 1, time_info.tm_mday,
+                time_info.tm_hour, time_info.tm_min, time_info.tm_sec);
+            
+            jsonObject["timestamp"] = buffer;
+
+            String jsonString;
+            jsonObject.printTo(jsonString);
+            Serial.println(buffer);
+            comm::send_message("ws_log", jsonString.c_str());
 
         //   xSemaphoreGive(bme_semaphore);
         }
