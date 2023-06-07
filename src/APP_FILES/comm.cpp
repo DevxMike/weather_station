@@ -34,10 +34,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 -----END CERTIFICATE-----
 )EOF";
 
-WiFiClientSecure espClient;
+WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 
-const char* mqtt_broker = "937f7c4f4ebe47ffaa73e3f12dc08165.s2.eu.hivemq.cloud";
+const char* mqtt_broker = "159.65.116.172";
 const char* mqtt_user_name = "WeatherStation";
 const char* mqtt_password = "ws17bezstA";
 
@@ -46,8 +46,7 @@ void comm::callback(char* topic, byte* payload, unsigned int length) {
 }
 
 bool comm::connect(){
-    espClient.setCACert(root_ca);
-    mqttClient.setServer(mqtt_broker, 8883);
+    mqttClient.setServer(mqtt_broker, 1883);
 
     auto tmp = mqttClient.connect("Weather", mqtt_user_name, mqtt_password);
 

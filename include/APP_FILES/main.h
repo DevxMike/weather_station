@@ -16,6 +16,7 @@
 
 
 #include <WiFiClientSecure.h>
+#include <PubSubClient.h>
 #include <ArduinoJson.h>
 #define USE_DEBUG_MSG 
 
