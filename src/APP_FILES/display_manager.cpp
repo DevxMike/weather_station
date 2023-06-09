@@ -4,6 +4,7 @@
 #include "APP_FILES/file_management.h"
 #include "APP_FILES/time_manager.h"
 #include "APP_FILES/analog.h"
+#include "APP_FILES/alarm.h"
 
 #include "GRAPHICS/arrow_left.h"
 #include "GRAPHICS/arrow_right.h"
@@ -216,11 +217,26 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       }
 
 
-      sprintf(buffer, 
+      // sprintf(buffer, 
+      //     "%02i.%02i.%02i        %02i:%02i", 
+      //     tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
+      //     tmp.tm_hour, tmp.tm_min
+      //   );
+
+      if(alarm_manager::alm){
+        sprintf(buffer, 
+          "%02i.%02i.%02i   %s   %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900, alarm_manager::alm == ALM_HI_TRIG? "HI" : "LO",
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+      else{
+        sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
           tmp.tm_hour, tmp.tm_min
         );
+      }
 
       main_background_sprite.fillSprite(TFT_BLACK);
 
@@ -356,11 +372,20 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
     auto& tmp = Logging::time_info;
     char buffer[100];
     
-    sprintf(buffer, 
+    if(alarm_manager::alm){
+        sprintf(buffer, 
+          "%02i.%02i.%02i   %s   %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900, alarm_manager::alm == ALM_HI_TRIG? "HI" : "LO",
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+      else{
+        sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
           tmp.tm_hour, tmp.tm_min
         );
+      }
 
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
@@ -415,11 +440,20 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
     auto& tmp = Logging::time_info;
     char buffer[100];
 
-      sprintf(buffer, 
+      if(alarm_manager::alm){
+        sprintf(buffer, 
+          "%02i.%02i.%02i   %s   %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900, alarm_manager::alm == ALM_HI_TRIG? "HI" : "LO",
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+      else{
+        sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
           tmp.tm_hour, tmp.tm_min
         );
+      }
 
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
@@ -475,11 +509,20 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
     auto& tmp = Logging::time_info;
     char buffer[100];
 
-    sprintf(buffer, 
+    if(alarm_manager::alm){
+        sprintf(buffer, 
+          "%02i.%02i.%02i   %s   %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900, alarm_manager::alm == ALM_HI_TRIG? "HI" : "LO",
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+      else{
+        sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
           tmp.tm_hour, tmp.tm_min
         );
+      }
 
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
@@ -570,11 +613,20 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       if(change){ // change alarms, set/clear alarm if button was pressed
         update_system_config();
       }
-    sprintf(buffer, 
+    if(alarm_manager::alm){
+        sprintf(buffer, 
+          "%02i.%02i.%02i   %s   %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900, alarm_manager::alm == ALM_HI_TRIG? "HI" : "LO",
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+      else{
+        sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
           tmp.tm_hour, tmp.tm_min
         );
+      }
 
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
@@ -616,11 +668,20 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
     char buffer[100];
     static auto static_time = Logging::time_info;
 
-    sprintf(buffer, 
+    if(alarm_manager::alm){
+        sprintf(buffer, 
+          "%02i.%02i.%02i   %s   %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900, alarm_manager::alm == ALM_HI_TRIG? "HI" : "LO",
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+      else{
+        sprintf(buffer, 
           "%02i.%02i.%02i        %02i:%02i", 
           tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
           tmp.tm_hour, tmp.tm_min
         );
+      }
 
       main_background_sprite.fillSprite(TFT_BLACK);
       // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
