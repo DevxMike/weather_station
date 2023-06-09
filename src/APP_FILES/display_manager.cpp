@@ -704,19 +704,19 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       }
 
       sprintf(buffer, "HOUR: %02i", static_time.tm_hour); // display values
-      main_background_sprite.drawString(buffer, 20, 35, 2);
+      main_background_sprite.drawString(buffer, 50, 35, 2);
       
       sprintf(buffer, "MIN : %02i", static_time.tm_min);
-      main_background_sprite.drawString(buffer, 20, 65, 2);
+      main_background_sprite.drawString(buffer, 57, 65, 2);
 
       sprintf(buffer, "DAY : %02i", static_time.tm_mday);
-      main_background_sprite.drawString(buffer, 20, 95, 2);
+      main_background_sprite.drawString(buffer, 53, 95, 2);
 
       sprintf(buffer, "MON : %02i", static_time.tm_mon + 1);
-      main_background_sprite.drawString(buffer, 20, 125, 2);
+      main_background_sprite.drawString(buffer, 50, 125, 2);
 
-      sprintf(buffer, "YEAR: %i", static_time.tm_year + 1900);
-      main_background_sprite.drawString(buffer, 20, 155, 2);
+      sprintf(buffer, "YEAR: %02i", (static_time.tm_year + 1900) % 100);
+      main_background_sprite.drawString(buffer, 50, 155, 2);
 
       for(int i = 0; i < 5; ++i){ // dislpay buttons
         main_background_sprite.pushImage(250, 40 + 30 * i, 25, 25, sm_decrement);
