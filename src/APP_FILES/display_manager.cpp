@@ -234,10 +234,10 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       main_background_sprite.drawString(buffer, 2, 0, 2); // draw time and date
       main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
 
-      if(millis() - temperature_timer > 1000){ // read every 1000ms
+      if(millis() - temperature_timer > 5000){ // read every 1000ms
         temp = display_manager::bme_ref.readTemperature();
-        hum = hum * 0.9 + 0.1 * display_manager::bme_ref.readHumidity();
-        press = press * 0.9 + 0.1 * (display_manager::bme_ref.readPressure() / 100);
+        hum = display_manager::bme_ref.readHumidity();
+        press = (display_manager::bme_ref.readPressure() / 100);
         voltage = voltage * 0.7 + 0.3 * analog_measures::input_voltage;
         dust_voltage = dust_voltage * 0.85 + 0.15 * analog_measures::sensor_voltage;
         temperature_timer = millis();
