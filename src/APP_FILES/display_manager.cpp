@@ -253,7 +253,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         main_background_sprite.setTextColor(TFT_GREEN, TFT_BLACK);
       }
       else{
-        main_background_sprite.setTextColor(TFT_BLUE, TFT_BLACK);
+        main_background_sprite.setTextColor(TFT_YELLOW, TFT_BLACK);
       }
 
       main_background_sprite.drawString(buffer, 220, 35, 2);
@@ -269,7 +269,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
         main_background_sprite.setTextColor(TFT_GREEN, TFT_BLACK);
       }
       else{
-        main_background_sprite.setTextColor(TFT_BLUE, TFT_BLACK);
+        main_background_sprite.setTextColor(TFT_YELLOW, TFT_BLACK);
       }
 
       main_background_sprite.drawString(buffer, 220, 70, 2);
@@ -282,13 +282,13 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
 
       if(press >= 1020){
-        main_background_sprite.setTextColor(TFT_YELLOW, TFT_BLACK);
+        main_background_sprite.setTextColor(TFT_GREEN, TFT_BLACK);
       }
       else if(press >= 1005){
         main_background_sprite.setTextColor(TFT_RED, TFT_BLACK);
       }
       else{
-        main_background_sprite.setTextColor(TFT_BLUE, TFT_BLACK);
+        main_background_sprite.setTextColor(TFT_YELLOW, TFT_BLACK);
       }
 
       main_background_sprite.drawString(buffer, 220, 100, 2);
