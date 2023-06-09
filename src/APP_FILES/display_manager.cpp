@@ -57,15 +57,15 @@
 
 /* ALARM SCREEN START */
 
-#define MIN_INC_X 280
-#define MAX_INC_X 320
+#define MIN_INC_X 230
+#define MAX_INC_X 270
 #define MIN_INC_1_Y 80
 #define MAX_INC_1_Y 120
 #define MIN_INC_2_Y 125
 #define MAX_INC_2_Y 165
 
-#define MIN_DEC_X 230
-#define MAX_DEC_X 270
+#define MIN_DEC_X 180
+#define MAX_DEC_X 220
 #define MIN_DEC_1_Y 80
 #define MAX_DEC_1_Y 120
 #define MIN_DEC_2_Y 125
@@ -592,17 +592,17 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       sprintf(buffer, "LO TR: %i", system_configuration.alarm_low);
       
-      main_background_sprite.drawString(buffer, 20, 85, 2);
-      main_background_sprite.pushImage(230, 80, 40, 40, decrement);
-      main_background_sprite.pushImage(280, 80, 40, 40, increment);
+      main_background_sprite.drawString(buffer, 50, 85, 2);
+      main_background_sprite.pushImage(180, 80, 40, 40, decrement);
+      main_background_sprite.pushImage(230, 80, 40, 40, increment);
 
 
       sprintf(buffer, "HI TR: %i", system_configuration.alarm_high);
 
-      main_background_sprite.drawString(buffer, 20, 130, 2);
+      main_background_sprite.drawString(buffer, 50, 130, 2);
 
-      main_background_sprite.pushImage(230, 125, 40, 40, decrement);
-      main_background_sprite.pushImage(280, 125, 40, 40, increment);
+      main_background_sprite.pushImage(180, 125, 40, 40, decrement);
+      main_background_sprite.pushImage(230, 125, 40, 40, increment);
 
       main_background_sprite.pushImage(110, 185, 100, 60,
         !system_configuration.alarm_set? set_alm : clear_alm      
