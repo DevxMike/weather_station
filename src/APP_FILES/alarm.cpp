@@ -5,7 +5,20 @@ void set_alarm(uint8_t flag){
 }
 
 void send_message(int actual){
+    StaticJsonBuffer<400> JSONBuffer;  
+    JsonObject& jsonObject = JSONBuffer.createObject();
+
     Serial.printf("alarm %d\n", alarm_manager::alm);
+
+    jsonObject["device_id"] = 1;
+    jsonObject["lo"] = system_configuration.alarm_low;
+    jsonObject["hi"] = system_configuration.alarm_high;
+    jsonObject["current"] = actual;
+
+    String jsonString;
+    jsonObject.printTo(jsonString);
+
+    comm::send_message("ws_log/alarm", jsonString.c_str());
 }
 
 void alarm_manager::main(void* args){
