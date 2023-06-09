@@ -7,6 +7,7 @@
 #include "APP_FILES/time_manager.h"
 #include "APP_FILES/analog.h"
 #include "APP_FILES/comm.h"
+#include "APP_FILES/alarm.h"
 
 uint32_t system_flags = 0;
 volatile config_info system_configuration{ 0 };
@@ -82,6 +83,7 @@ list_of_logs Logging::chart_list;
 
 uint16_t analog_measures::input_voltage{ 0 };
 uint16_t analog_measures::sensor_voltage{ 0 };
+uint8_t alarm_manager::alm{ 0 };
 
 bool connected{ false };
 
@@ -282,4 +284,6 @@ void loop() {
   display_manager::main();
 
   comm::main();
+
+  alarm_manager::main(NULL);
 }
