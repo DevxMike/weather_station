@@ -37,6 +37,8 @@
 
 #define DEG2RAD 0.0174532925 
 
+#define DEVICE_ID 0x01
+
 struct config_info{
     char alarm_low; // lower threshold of temperature
     char alarm_high; // upper threshold of temperature

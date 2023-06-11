@@ -1,4 +1,5 @@
 #include "APP_FILES/comm.h"
+#include "APP_FILES/file_management.h"
 
 static const char *root_ca PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -41,8 +42,63 @@ const char* mqtt_broker = "159.65.116.172";
 const char* mqtt_user_name = "WeatherStation";
 const char* mqtt_password = "ws17bezstA";
 
+void send_system_cfg(){
+    StaticJsonBuffer<400> JSONBuffer;  
+    JsonObject& jsonObject = JSONBuffer.createObject();
+    const auto& tmp = system_configuration;
+
+    jsonObject["device_id"] = 1;
+    jsonObject["alarm_low"] = tmp.alarm_low;
+    jsonObject["alarm_high"] = tmp.alarm_high;
+    jsonObject["logging_config"] = tmp.logging_config;
+    jsonObject["graph_config"] = tmp.graph_config;
+    jsonObject["alarm_set"] = tmp.alarm_set;
+
+    String jsonString;
+    jsonObject.printTo(jsonString);
+
+    comm::send_message("ws_init/dev_settings", jsonString.c_str());
+}
+
+bool apply_received_settings(char* payload, unsigned int length){
+    bool ret = false;
+    StaticJsonBuffer<300> JSONBuffer;  
+
+    auto& tmp = system_configuration;
+
+    JsonObject& parsed = JSONBuffer.parseObject(payload);
+
+    if(parsed.success()){
+        if(parsed["device_id"] == DEVICE_ID){
+            tmp.alarm_high = parsed["alarm_high"];
+            tmp.alarm_low = parsed["alarm_low"];
+            tmp.alarm_set = parsed["alarm_set"];
+            tmp.graph_config = parsed["graph_config"];
+            tmp.logging_config = parsed["logging_config"];
+
+            update_system_config();
+
+            ret = true;
+        }
+    }
+
+    return ret;
+}
+
 void comm::callback(char* topic, byte* payload, unsigned int length) {
-  // MQTT message callback function
+//   Serial.printf("Thema der abgerufene Nachricht: %s\n", topic);
+    if(strcmp(topic, "ws_init") == 0){
+        send_system_cfg();
+    }
+
+    if(strcmp(topic, "ws_settings") == 0){
+        if(apply_received_settings((char*)payload, length)){
+            // Serial.println("Apply OK");
+        }
+        else{
+            // Serial.println("Apply NOK");
+        }
+    }
 }
 
 bool comm::connect(){
