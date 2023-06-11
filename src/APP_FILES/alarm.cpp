@@ -26,8 +26,7 @@ void alarm_manager::main(void* args){
     static unsigned long timer;
     bool alarm_armed = system_configuration.alarm_set;
     int temp;
-    static uint8_t last_alarm_state;
-    
+    static uint8_t last_alarm_state;    
 
     switch(state){
         case 0:
@@ -48,10 +47,8 @@ void alarm_manager::main(void* args){
             else{
                 set_alarm(0);
             }
-
-            if(alm != last_alarm_state){
-                send_message(temp);
-            }
+            
+            send_message(temp);
 
             timer = millis();
             last_alarm_state = alm;
