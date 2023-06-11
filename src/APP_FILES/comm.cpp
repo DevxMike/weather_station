@@ -81,7 +81,7 @@ void comm::main(){
                 comm_state = 2;
             }
             else{
-                mqttClient.connect("Weather", mqtt_user_name, mqtt_password);
+                connect();
                 timer = millis();
                 comm_state = 1;
             }

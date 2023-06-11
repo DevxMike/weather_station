@@ -839,7 +839,7 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
       // check if the time has been initialised
       if(!(system_flags & DEV_STATE_RTC_OK)){
         // start with date setting screen
-        current_screen = 5;
+        // current_screen = 5;
       } 
       time_init = true;
     }
