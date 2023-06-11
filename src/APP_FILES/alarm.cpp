@@ -62,6 +62,8 @@ void alarm_manager::main(void* args){
             if(millis() - timer > 2000){
                 if(alarm_armed == false){
                     state = 0;
+                    set_alarm(0);
+                    send_message((system_configuration.alarm_low + system_configuration.alarm_high) / 2);
                 }
                 else{
                     state = 1;
