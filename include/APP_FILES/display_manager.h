@@ -57,7 +57,7 @@ public:
 
 private:
   typedef void (*screen_function)(void);
-  static screen_function array_of_screens[6];
+  static screen_function array_of_screens[7];
   static void touch_debouncer();
   static void touch_manager();
   static void draw_temperature_screen();
@@ -66,6 +66,7 @@ private:
   static void draw_alarm_config_screen();
   static void draw_time_config_screen();
   static void draw_logging_screen();
+  static void draw_weather_forecast_screen();
   static void write_status(bool ok, int x, int y);
   static bool pressed;
   static uint32_t touch_flags;

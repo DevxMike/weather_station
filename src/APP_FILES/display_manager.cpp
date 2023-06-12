@@ -160,8 +160,9 @@ const char config_strings[3][30]{
     return tmp;
   }
 
-  display_manager::screen_function display_manager::array_of_screens[6]{ // function pointer array - screen drawing functions
+  display_manager::screen_function display_manager::array_of_screens[7]{ // function pointer array - screen drawing functions
     draw_temperature_screen,
+    draw_weather_forecast_screen,
     draw_temperature_graph_screen,
     draw_chart_config_screen,
     draw_logging_screen,
@@ -791,6 +792,52 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
 
       main_background_sprite.pushSprite(0, 0);
   }
+
+  void display_manager::draw_weather_forecast_screen(){
+    auto& tmp = Logging::time_info;
+    char buffer[100];
+    static auto static_time = Logging::time_info;
+
+    if(alarm_manager::alm){
+        sprintf(buffer, 
+          "%02i.%02i.%02i   %s   %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900, alarm_manager::alm == ALM_HI_TRIG? "HI" : "LO",
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+      else{
+        sprintf(buffer, 
+          "%02i.%02i.%02i        %02i:%02i", 
+          tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year+1900,
+          tmp.tm_hour, tmp.tm_min
+        );
+      }
+
+      main_background_sprite.fillSprite(TFT_BLACK);
+      // main_background_sprite.pushImage(0, 0, 320, 240, sky_bg);
+
+      left_arrow_sprite.pushImage(0, 0, 48, 48, arrow_left); // draw arrows
+      right_arrow_sprite.pushImage(0, 0, 48, 48, arrow_right);
+      left_arrow_sprite.pushToSprite(&main_background_sprite, 10, 190);
+      right_arrow_sprite.pushToSprite(&main_background_sprite, 260, 190);
+
+      main_background_sprite.setTextColor(TFT_WHITE, TFT_BLACK);
+      main_background_sprite.setTextSize(2);
+      main_background_sprite.drawString(buffer, 2, 0, 2); // draw date time
+      main_background_sprite.drawLine(0, 28, 320, 28, TFT_WHITE);
+      
+      main_background_sprite.setTextSize(1);
+      tft.setTextFont(1);
+      sprintf(buffer, "hour  | temp | hum| press| hour  | temp | hum| press");
+      main_background_sprite.drawString(buffer, 0, 30);
+      sprintf(buffer, "00:00 | 23.4 | 59 | 998.1| 00:00 | 23.4 | 59 | 998.1");
+
+      for(int i = 0; i < 12; ++i)
+        main_background_sprite.drawString(buffer, 0, 38 + i * 8);
+
+      tft.setTextFont(2);
+      main_background_sprite.pushSprite(0, 0);
+  }
   
   void display_manager::main(){ 
     static uint8_t refresh_state = 0;
@@ -805,14 +852,14 @@ struct Point get_point_on_circle(struct Point center, double radius, double angl
     // switching between the screens
     if(LEFT_ARROW_PRESSED & touch_flags){ // navigate left
       if(current_screen == 0){
-        current_screen = 5;
+        current_screen = 6;
       }
       else{
         current_screen = current_screen - 1;
       }
     }
     else if(RIGHT_ARROW_PRESSED & touch_flags){ // navigate right
-      current_screen = (current_screen + 1) % 6;
+      current_screen = (current_screen + 1) % 7;
     }
 
 

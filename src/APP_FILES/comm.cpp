@@ -85,6 +85,12 @@ bool apply_received_settings(char* payload, unsigned int length){
     return ret;
 }
 
+bool parse_weather(char* payload){
+    bool ret = false;
+    StaticJsonBuffer<500> JSONBuffer;  
+    return ret;
+}
+
 void comm::callback(char* topic, byte* payload, unsigned int length) {
 //   Serial.printf("Thema der abgerufene Nachricht: %s\n", topic);
     if(strcmp(topic, "ws_init") == 0){
@@ -99,6 +105,19 @@ void comm::callback(char* topic, byte* payload, unsigned int length) {
             // Serial.println("Apply NOK");
         }
     }
+
+    Serial.println(topic);
+
+    if(strcmp(topic, "ws_weather") == 0){
+        Serial.printf("Length: %d\n", length);
+
+        if(parse_weather((char*)payload)){
+            Serial.println("Ok");
+        }
+        else{
+            Serial.println("Nok");
+        }
+    }
 }
 
 bool comm::connect(){
@@ -111,6 +130,7 @@ bool comm::connect(){
 
         mqttClient.subscribe("ws_init");
         mqttClient.subscribe("ws_settings");
+        mqttClient.subscribe("ws_weather");
     }
     else{
 
@@ -164,8 +184,8 @@ void comm::main(){
                             message.payload.c_str()
                         );
 
-                        Serial.println(message.topic.c_str());
-                        Serial.println(message.payload.c_str());
+                        // Serial.println(message.topic.c_str());
+                        // Serial.println(message.payload.c_str());
 
                     }
 

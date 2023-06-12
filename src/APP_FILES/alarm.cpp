@@ -8,7 +8,7 @@ void send_message(int actual){
     StaticJsonBuffer<400> JSONBuffer;  
     JsonObject& jsonObject = JSONBuffer.createObject();
 
-    Serial.printf("alarm %d\n", alarm_manager::alm);
+    // Serial.printf("alarm %d\n", alarm_manager::alm);
 
     jsonObject["device_id"] = 1;
     jsonObject["lo"] = system_configuration.alarm_low;
